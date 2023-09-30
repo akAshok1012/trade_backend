@@ -1,0 +1,72 @@
+spring:
+    flyway:
+     enabled: false
+     schemas: public
+     locations: classpath:db/migration
+     check-location: true
+     baselineOnMigrate: true
+     user: postgres
+     password: root
+     url: jdbc:postgresql://localhost:5432/trade
+    config:
+        activate:
+            on-profile: dev
+    datasource:
+      driver-class-name: org.postgresql.Driver
+      username: postgres
+      password: root
+      url: jdbc:postgresql://localhost:5432/trade
+      type: com.zaxxer.hikari.HikariDataSource
+      hikari:
+        pool-name: springHikariCP
+        idle-timeout: 30000
+        maximum-pool-size: 20
+        connection-timeout: 20000
+    jpa:
+      hibernate:
+        ddl-auto: update
+      show-sql: true
+      properties:
+        hibernate:
+          format_sql: true
+      database: postgresql
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+    mail:
+        host: smtp.elasticemail.com
+        password: B90CEF2608B86BE8BC903119CDEFB885A975
+        port: 2525
+        properties:
+            mail:
+                smtp:
+                    auth: true
+                    starttls:
+                        enable: true
+        username: tm.xyloinc@gmail.com
+
+server:
+  port : 9004
+  servlet:
+     contextPath : /tm
+management:
+  endpoints:
+    metrics:
+      enabled: true
+      tags:
+        hikaricp: pool
+    web:
+      exposure:
+        include: "*"
+logging:
+  level:
+    com:
+      zaxxer:
+        hikari:
+          HikariConfig: DEBUG
+---
+spring:
+    config:
+        activate:
+            on-profile: prod
+name: prod-YAML
+environment: production
+enabled: true

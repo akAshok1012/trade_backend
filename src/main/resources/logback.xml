@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true">
+
+	<property resource="logback-conf.properties" />
+
+	<appender name="CONSOLE"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+			<pattern>${color.pattern}</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.root.dir}/${log.file.prefix}.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${log.root.dir}/${log.file.prefix}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<maxFileSize>${log.max.file.size}</maxFileSize>
+			<maxHistory>${log.max.history}</maxHistory>
+			<totalSizeCap>${log.file.cap.size}</totalSizeCap>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="FILE_ALL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.root.dir}/${log.file.prefix}-all.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${log.root.dir}/${log.file.prefix}-all.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<maxFileSize>${log.max.file.size}</maxFileSize>
+			<maxHistory>${log.max.history}</maxHistory>
+			<totalSizeCap>${log.file.cap.size}</totalSizeCap>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="FILE_ERR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${log.root.dir}/${log.file.prefix}-error.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+			<fileNamePattern>${log.root.dir}/${log.file.prefix}-error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<maxFileSize>${log.max.file.size}</maxFileSize>
+			<maxHistory>${log.max.history}</maxHistory>
+			<totalSizeCap>${log.file.cap.size}</totalSizeCap>
+		</rollingPolicy>
+		<encoder>
+			<pattern>${log.pattern}</pattern>
+		</encoder>
+		<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+			<level>ERROR</level>
+		</filter>
+	</appender>
+	
+
+
+	
+<!-- 	<logger name="com.tm.app" level="debug">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE" />
+		<appender-ref ref="FILE_ALL" />
+		<appender-ref ref="FILE_ERR" />
+	</logger>
+	 -->
+
+	
+	<root level="${log.level}">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="FILE_ALL" />
+		<appender-ref ref="FILE_ERR" />
+	</root>
+</configuration>

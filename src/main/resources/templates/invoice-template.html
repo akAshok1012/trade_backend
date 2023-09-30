@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Invoice</title>
+
+<style>
+/* Add your custom CSS styles here */
+body {
+	font-family: Arial, sans-serif;
+	font-size: 14px;
+}
+
+.header {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	border-bottom: 10px solid #ccc;
+	align-items: center;
+	margin-bottom: 20px;
+	padding-bottom: 20px;
+}
+
+.logo {
+	width: 200px;
+	height: 100px;
+	align-items: center;
+}
+
+.table-header {
+	background-color: #f2f2f2;
+	font-weight: bold;
+	padding: 10px;
+	border: 1px solid #662d91;
+}
+
+.invoice-table {
+	border-collapse: collapse;
+	width: 100%;
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.invoice-table td, .invoice-table th {
+	border: 1px solid #ccc;
+	padding: 8px;
+	text-align: left;
+}
+
+.total {
+	font-weight: bold;
+}
+
+.right {
+	text-align: right;
+}
+
+.footer {
+	border-top: 10px solid #ccc;
+	font-weight: bold;
+	padding-top: 20px;
+	position: fixed;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+}
+</style>
+</head>
+<body>
+	<div class="header">
+		<table style="width: 100%">
+			<tr>
+				<td style="width: 50%; text-align: left; color: #662d91"><h1>Memo</h1></td>
+				<td style="width: 50%; text-align: right;"><img
+					th:src="${image}" alt="Logo" class="logo" /></td>
+			</tr>
+			<tr>
+				<td
+					style="width: 50%; text-align: left; color: blue; font-weight: bold;"
+					th:text="'Sales ID :'+${client.salesId}"></td>
+			</tr>
+			<tr>
+				<td
+					style="width: 50%; text-align: left; color: blue; font-weight: bold;"
+					th:text="'Date-Time :'+${client.updatedAt}"></td>
+			</tr>
+		</table>
+	</div>
+	<div class="client-info">
+		<table>
+
+			<tr>
+				<th><h3>
+						<b>Customer Details</b>
+					</h3></th>
+			</tr>
+
+			<tr>
+				<td th:text="${client.clientOrganization}"></td>
+			</tr>
+			<tr>
+				<td th:text="${client.clientName}"></td>
+			</tr>
+			<tr>
+				<td th:text="${client.clientAddress}"></td>
+			</tr>
+			<tr>
+				<td th:text="${client.clientEmail}"></td>
+			</tr>
+			<tr>
+				<td th:text="${client.clientPhoneNumber}"></td>
+			</tr>
+		</table>
+	</div>
+	<table class="invoice-table">
+		<thead>
+			<tr style="color: #662d91">
+				<th class="table-header">S.No</th>
+				<th class="table-header">Item</th>
+				<th class="table-header">Quantity</th>
+				<th class="table-header right">Unit price</th>
+				<th class="table-header right">Item total</th>
+			</tr>
+		</thead>
+		<tbody>
+
+			<tr th:each="item, iterStat: ${itemList}">
+				<td th:text="${iterStat.index + 1}" style="text-align: right;"></td>
+				<td th:text="${item.clientItemName}"></td>
+				<td th:text="${item.quantity}" style="text-align: right;"></td>
+				<td th:text="${item.unitPrice}" style="text-align: right;"></td>
+				<td th:text="${item.total}" style="text-align: right;"></td>
+			</tr>
+		</tbody>
+	</table>
+	<table style="width: 100%; padding-bottom: 20px;">
+		<tr>
+			<td colspan="5"></td>
+			<td th:text="'Total: '"
+				style="width: 100%; text-align: right; font-size: medium; font-weight: bold;"></td>
+			<td th:text="${grandTotal}"
+				style="width: 100%; text-align: right; font-size: medium;"></td>
+		</tr>
+		<tr>
+			<td th:text="'Amount in words : '+${totalInWords}"
+				style="width: 100%; text-align: left; font-size: medium;"></td>
+		</tr>
+	</table>
+	<div class="footer">
+		<table width="100%">
+			<tr>
+				<td>
+					<table style="float: left; width: 65%">
+						<tr>
+							<td>Contact us: KPRM RAMASSWAMI DHAL TRADING CO,</td>
+						</tr>
+						<tr>
+							<td>Naickenpatti(Po) Sivathapuram (Via),</td>
+						</tr>
+						<tr>
+							<td>Salem - 636 307, Tamilnadu, INDIA.</td>
+						</tr>
+						<tr>
+							<td>Email: customercare@kannenfoods.com</td>
+						</tr>
+						<tr>
+							<td>Web: www.kannenfoods.com</td>
+						</tr>
+						<tr>
+							<td>Customer care: +91 70944 44114</td>
+						</tr>
+					</table>
+				</td>
+				<td style="border: 1px solid; width: 35%; vertical-align: bottom;">
+					<table style="float: right;">
+						<tr>
+							<td style="padding: 20px">Prepared by</td>
+							<td style="padding: 20px">Verified by</td>
+							<td style="padding: 20px">Authorized signature</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>
