@@ -32,3 +32,25 @@ jobs:
           DOCKER_CLI_EXPERIMENTAL: enabled
           DOCKER_BUILDKIT: 1
           DOCKERHUB_USERNAME: xyloincadmin
+      -
+        name: Checkout
+        uses: actions/checkout@v3
+     
+      - name: Install Helm
+        uses: azure/setup-helm@v3
+        with:
+         charts_dir: /kprbackend
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.5.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"        
+
+      - name: Configure kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          kubeconfig: ${{ secrets.KUBECONFIG }}
+      - name: Deploy Helm chart
+        run: |
+          helm install kprdata kprbackend
+          helm template kprbackend
+       
