@@ -35,3 +35,4 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
+          tag: $GITHUB_RUN_NUMBER 
