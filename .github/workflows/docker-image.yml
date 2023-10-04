@@ -13,8 +13,7 @@ jobs:
       DOCKER_REPOSITORY: ${{ secrets.DOCKER_USER_NAME }}
       IMAGE_NAME: trademanager
       IMAGE_TAG: ${{ github.run_number }}
-
-      
+    
     steps:
     - name: Login to Docker Hub
       run: |
