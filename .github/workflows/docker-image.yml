@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-container:
-    runs-on: ubuntu
+    runs-on: ubuntu-latest
     env:
       DOCKER_REPOSITORY: ${{ secrets.DOCKER_USER_NAME }}
       IMAGE_NAME: trademanager
