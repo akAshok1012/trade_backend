@@ -49,27 +49,20 @@ jobs:
         uses: azure/setup-kubectl@v1
         with:
           kubeconfig: ${{ secrets.KUBECONFIG }}
-      - name: Check if Helm release exists
+      - name: Check if Helm release exists & Install or Upgrade Helm Chart
         id: check_release
         run: |
            RELEASE_NAME=kprdata
            if helm get $RELEASE_NAME > /dev/null 2>&1; then
                echo "Helm release $RELEASE_NAME already exists."
+                helm upgrade $RELEASE_NAME kprbackend
                echo "::set-output name=release_exists::true"
            else
                echo "Helm release $RELEASE_NAME does not exist."
+                helm install $RELEASE_NAME kprchat /kprbackend
                echo "::set-output name=release_exists::false"
            fi
-      - name: Install or Upgrade Helm Chart
-        run: |
-            RELEASE_NAME=kprdata
-            if [[ "${{ steps.check_release.outputs.release_exists }}" == 'true' ]]; then
-                echo "Upgrading Helm release $RELEASE_NAME"
-                 helm upgrade $RELEASE_NAME /kprbackend
-            else
-                echo "Installing Helm release $RELEASE_NAME"
-                 helm install $RELEASE_NAME kprchat /kprbackend
-            fi     
+     
 
      
 
