@@ -60,14 +60,17 @@ jobs:
                echo "Helm release $RELEASE_NAME does not exist."
                echo "::set-output name=release_exists::false"
            fi
-
       - name: Install or Upgrade Helm Chart
-        if: steps.check_release.outputs.release_exists == 'false'
         run: |
-            helm install kprdata /kprbackend
+            RELEASE_NAME=kprdata
+            if [[ "${{ steps.check_release.outputs.release_exists }}" == 'true' ]]; then
+                echo "Upgrading Helm release $RELEASE_NAME"
+                 helm upgrade $RELEASE_NAME /kprbackend
             else
-            run: |
-             helm upgrade kprdata /kprbackend
-             fi
+                echo "Installing Helm release $RELEASE_NAME"
+                 helm install $RELEASE_NAME kprchat /kprbackend
+            fi     
+
+     
 
        
