@@ -51,6 +51,7 @@ jobs:
           kubeconfig: ${{ secrets.KUBECONFIG }}
       - name: Deploy Helm chart
         run: |
-          helm install kprdata kprbackend
-          helm template kprbackend
+          helm install kprdata . --dry-run > Chart.yaml
+          kubectl apply -f Chart.yaml
+
        
