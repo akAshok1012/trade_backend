@@ -16,6 +16,6 @@ RUN mvn -B package --file pom.xml
 FROM  openjdk:17-jdk-slim
 COPY --from=build /app/target/trademanager-0.0.1-SNAPSHOT.jar /app/trademanager-0.0.1-SNAPSHOT.jar
 
-EXPOSE 9044
+EXPOSE 6044
 # Set the entry point for the container
 ENTRYPOINT ["java", "-jar", "/app/trademanager-0.0.1-SNAPSHOT.jar"]
