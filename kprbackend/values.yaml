@@ -44,8 +44,8 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 9044
-  targetPort: 9044
+  port: 6044
+  targetPort: 6044
     
 
 ingress:
