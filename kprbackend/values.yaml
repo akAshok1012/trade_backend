@@ -12,7 +12,7 @@ image:
 kprbackend:   
   database:
     host: postgres-service
-    port: 5435
+    port: 5432
     name: trade
     username: postgres
     password: root
