@@ -20,4 +20,5 @@ public class EmployeeUserDto {
 	private String firstName;
 	private String lastName;
 	private String userName;
+	private Boolean changeUserName;
 }

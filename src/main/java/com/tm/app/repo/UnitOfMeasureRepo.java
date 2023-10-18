@@ -13,4 +13,6 @@ public interface UnitOfMeasureRepo extends JpaRepository<UnitOfMeasure, Long>{
 
 	Page<UnitOfMeasure> findByUnitNameLikeIgnoreCase(String search, PageRequest of);
 
+	boolean existsByUnitNameEqualsIgnoreCaseAndUnitWeight(String unitName, Integer unitWeight);
+
 }

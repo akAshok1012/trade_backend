@@ -88,6 +88,9 @@ public class Employee {
 
     @Transient
     private String errorDescription;
+    
+    @Transient
+    private String userName;
 
     private static final Pattern PHONE_NUMBER_PATTERN = Pattern.compile("^[0-9]{10}$");
     private static final Pattern AADHAAR_NUMBER_PATTERN = Pattern.compile("^[0-9]{12}$");

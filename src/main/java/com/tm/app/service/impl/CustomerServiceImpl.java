@@ -22,6 +22,7 @@ import com.tm.app.entity.Customer;
 import com.tm.app.entity.CustomerWallet;
 import com.tm.app.entity.User;
 import com.tm.app.enums.CustomerType;
+import com.tm.app.repo.CreditPaymentTrackRepo;
 import com.tm.app.repo.CustomerRepo;
 import com.tm.app.repo.CustomerWalletRepo;
 import com.tm.app.repo.UserRepository;
@@ -38,6 +39,9 @@ public class CustomerServiceImpl implements CustomerService {
 
 	@Autowired
 	private CustomerRepo customerRepo;
+
+	@Autowired
+	private CreditPaymentTrackRepo creditTrackRepo;
 
 	@Autowired
 	private UserRepository userRepo;
@@ -65,10 +69,8 @@ public class CustomerServiceImpl implements CustomerService {
 			}
 			BeanUtils.copyProperties(customerDto, customer);
 			customer = customerRepo.save(customer);
-			CustomerWallet customerWallet = new CustomerWallet();
-			customerWallet.setBalance(0F);
-			customerWallet.setCustomer(customer);
-			customerWallet = customerWalletRepo.save(customerWallet);
+			//add wallet for customer
+			addWalletForCustomer(customer);
 		} catch (Exception e) {
 			log.error("[CUSTOMER] adding customer failed", e);
 			throw new RuntimeException(e.getMessage());
@@ -121,11 +123,39 @@ public class CustomerServiceImpl implements CustomerService {
 			customer.setFollowUpDays(customerDto.getFollowUpDays());
 			customer.setUpdatedBy(customerDto.getUpdatedBy());
 			customer = customerRepo.save(customer);
+			
+			//if a customer has no wallet 
+			addWalletForCustomerNotExists(customer);
+			creditTrackRepo.truncateTable();
+			creditTrackRepo.saveCreditPaymentTrack();
+
 		} catch (Exception e) {
 			log.error("[CUSTOMER] updating customer failed", e);
 			throw new RuntimeException(e.getMessage());
 		}
 		return customer;
+	}
+
+	/**
+	 * add Wallet if Not Exists
+	 * @param customer
+	 */
+	private void addWalletForCustomerNotExists(Customer customer) {
+		if(!customerWalletRepo.existsByCustomer(customer)) {
+			addWalletForCustomer(customer);
+		}
+	}
+	
+	/**
+	 * add Wallet for Customer
+	 * @param customer
+	 */
+	private void addWalletForCustomer(Customer customer) {
+		CustomerWallet customerWallet = new CustomerWallet();
+		customerWallet.setBalance(0F);
+		customerWallet.setCustomer(customer);
+		customerWallet.setUpdatedBy(customer.getUpdatedBy());
+		customerWallet = customerWalletRepo.save(customerWallet);
 	}
 
 	@Override

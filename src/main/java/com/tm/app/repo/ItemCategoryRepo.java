@@ -13,5 +13,7 @@ public interface ItemCategoryRepo extends JpaRepository<ItemCategory, Long> {
 
 	Page<ItemCategory> findByCategoryNameLikeIgnoreCase(String search, PageRequest of);
 
+	boolean existsByCategoryNameIgnoreCase(String categoryName);
+
 
 }

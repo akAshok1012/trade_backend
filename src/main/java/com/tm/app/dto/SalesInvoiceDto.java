@@ -14,6 +14,6 @@ public class SalesInvoiceDto {
 	private Integer quantity;
 	private Float unitPrice;
 	private String description;
-	private Long total;
+	private Float total;
 	private String updatedAt;
 }

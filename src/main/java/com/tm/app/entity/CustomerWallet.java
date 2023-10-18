@@ -37,4 +37,8 @@ public class CustomerWallet {
 	@Column(name = "updated_by")
 	private String updatedBy;
 
+	public void setBalance(float balance) {
+		this.balance =  (float) Math.round(balance);
+	}
+	
 }

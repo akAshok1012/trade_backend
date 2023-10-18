@@ -45,7 +45,7 @@ public class OrderItem {
 	@Column(name = "unit_price")
 	private Float unitPrice;
 
-	@Column(name = "total_amount")
+	@Column(name = "total_amount", columnDefinition = "FLOAT default 0.00")
 	private Float totalAmount;
 
 	@UpdateTimestamp

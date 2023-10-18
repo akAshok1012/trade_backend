@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +49,11 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
 
 	@Value("${application.logo}")
 	private String path;
+	
+	
+	@Value("${sales.invoice.pageper.data}")
+	private Integer salesInvoicePagePerData;
+	
 
 	public byte[] generatePdfFile(String templateName, Map<String, Object> data) throws DocumentException {
 		Context context = new Context();
@@ -71,7 +78,7 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
 		Order order = orderRepo.findByOrderId(salesOrder.getOrder());
 		List<OrderItem> orderItems = orderItemRepo.findByOrder(order);
 		List<SalesInvoiceDto> salesInvoiceList = new ArrayList<>();
-		long grandTotal = 0;
+		float grandTotal = 0;
 		SalesInvoiceDto invoiceDto = new SalesInvoiceDto();
 		invoiceDto.setSalesId(salesOrder.getSalesId().toString());
 		invoiceDto.setClientOrganization(salesOrder.getCustomer().getOrganization());
@@ -86,7 +93,7 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
 			invoiceDtoList.setDescription(orderItem.getItemMaster().getItemDescription());
 			invoiceDtoList.setQuantity(orderItem.getUnitOfMeasure().getUnitWeight() * orderItem.getOrderedQuantity());
 			invoiceDtoList.setUnitPrice(orderItem.getUnitPrice());
-			long total = (long) ((orderItem.getUnitOfMeasure().getUnitWeight() * orderItem.getOrderedQuantity())
+			float total = (float) ((orderItem.getUnitOfMeasure().getUnitWeight() * orderItem.getOrderedQuantity())
 					* orderItem.getUnitPrice());
 			invoiceDtoList.setTotal(total);
 			grandTotal = grandTotal + total;
@@ -94,10 +101,17 @@ public class PdfGenerateServiceImpl implements PdfGenerateService {
 		}
 		data.put("client", invoiceDto);
 		data.put("grandTotal", grandTotal);
-		data.put("itemList", salesInvoiceList);
+		data.put("itemListGroup", splitList(salesInvoiceList, salesInvoicePagePerData));
 		data.put("image", path);
+		data.put("salesInvoicePagePerData",salesInvoicePagePerData);
 		data.put("totalInWords", Currency.numbersToWord(String.valueOf(grandTotal)));
 		return generatePdfFile("invoice-template", data);
+	}
+
+	public static <T> List<List<T>> splitList(List<T> list, int batchSize) {
+		return IntStream.range(0, (list.size() + batchSize - 1) / batchSize)
+				.mapToObj(i -> list.subList(i * batchSize, Math.min((i + 1) * batchSize, list.size())))
+				.collect(Collectors.toList());
 	}
 
 	@Override

@@ -11,4 +11,6 @@ public class APIResponseConstants {
 	public static final String ORDER_APPROVED_RESPONSE = "Order Approved successfully";
 	public static final String ORDER_REJECTED_RESPONSE = "Rejected  successfully";
 	public static final String ALREADY_EXISTS="'%s' Already exists";
+	public static final String UNIT_OF_MEASURES_ALREADY_EXISTS="UnitName:'%s',UnitWeight'%s' Already exists";
+	public static final String ITEM_DETAILS_ALREADY_EXISTS="ItemName:'%s',Category:'%s',Brand:'%s' Already exists";
 }

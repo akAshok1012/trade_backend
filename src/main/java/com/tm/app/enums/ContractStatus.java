@@ -1,7 +1,7 @@
 package com.tm.app.enums;
 
 public enum ContractStatus {
-	NOT_STARTED,
+	UPCOMING,
 	ONGOING,
 	PARTIALY_CLOSED,
 	CLOSED

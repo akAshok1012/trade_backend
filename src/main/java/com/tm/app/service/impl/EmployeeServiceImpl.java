@@ -139,11 +139,19 @@ public class EmployeeServiceImpl implements EmployeeService {
 					&& !employee.getPanNumber().equals(employeeDto.getPanNumber())) {
 				throw new RuntimeException("PanNumber  already exists");
 			}
+//			if (Objects.nonNull(employeeDto.getUanNumber())
+//					&& employeeRepo.existsByUanNumber(employeeDto.getUanNumber())
+//					&& !employee.getUanNumber().equals(employeeDto.getUanNumber())) {
+//				throw new RuntimeException("uanNumber  already exists");
+//			}
+			
 			if (Objects.nonNull(employeeDto.getUanNumber())
-					&& employeeRepo.existsByUanNumber(employeeDto.getUanNumber())
-					&& !employee.getUanNumber().equals(employeeDto.getUanNumber())) {
-				throw new RuntimeException("uanNumber  already exists");
-			}
+				    && employeeRepo.existsByUanNumber(employeeDto.getUanNumber())
+				    && (employee.getUanNumber() == null || !employee.getUanNumber().equals(employeeDto.getUanNumber()))) {
+				    throw new RuntimeException("UanNumber already exists");
+				}
+
+			
 			if (StringUtils.isNotEmpty(employeeDto.getPfNumber())
 					&& employeeRepo.existsByPfNumber(employeeDto.getPfNumber())
 					&& !employee.getPfNumber().equals(employeeDto.getPfNumber())) {
@@ -240,11 +248,22 @@ public class EmployeeServiceImpl implements EmployeeService {
 		try {
 			User user = userRepository.findById(id).orElseThrow();
 			Employee employee = employeeRepo.findById(user.getUserId()).orElseThrow();
+			if (Objects.nonNull(employeeUserDto.getChangeUserName()) && employeeUserDto.getChangeUserName()) {
+				if (Objects.nonNull(userRepository
+						.getUserNameForUpdateUserName(String.valueOf(employeeUserDto.getPhoneNumber()), id))) {
+					throw new RuntimeException("User Already Exist");
+				}
+				user.setUserName(String.valueOf(employeeUserDto.getPhoneNumber()));
+				userRepository.save(user);
+			}
 			BeanUtils.copyProperties(employeeUserDto, employee);
-			return employeeRepo.save(employee);
+			employee.setUserName(user.getUsername());
+			employee = employeeRepo.save(employee);
+			return employee;
 		} catch (Exception e) {
 			log.error("[EMPLOYEE] Employee Updated Failed", e);
 			throw new RuntimeException("Employee Updated Failed");
 		}
+
 	}
 }

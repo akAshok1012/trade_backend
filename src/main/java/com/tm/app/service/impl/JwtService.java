@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,30 +31,30 @@ import io.jsonwebtoken.security.Keys;
 
 @Service
 public class JwtService {
+	@Value("${server.env}")
+	private String env;
 
 	private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
 	private static final String ROLE_CLAIM = "roleName";
 
-	public String extractUsername(String token) throws JsonProcessingException {
+	public JwtToken extractJwtObject(String token) throws JsonProcessingException {
 		String subject = extractClaimSubject(token);
-		ObjectMapper objectMapper = new ObjectMapper();
-		return objectMapper.readValue(subject, JwtToken.class).getUserName();
-	}
-	
-	public String extractIssuer(String token) throws JsonProcessingException {
-		String subject = extractClaimSubjectIssuer(token);
-		ObjectMapper objectMapper = new ObjectMapper();
-		return objectMapper.readValue(subject, JwtToken.class).getUserName();
+		return extractedJwtToken(subject);
 	}
 
-	private String extractClaimSubjectIssuer(String token) {
-		final Claims claims = extractAllClaims(token);
-		return claims.getIssuer();
+	private JwtToken extractedJwtToken(String subject) throws JsonProcessingException, JsonMappingException {
+		ObjectMapper objectMapper = new ObjectMapper();
+		return objectMapper.readValue(subject, JwtToken.class);
 	}
 
 	public String extractTenantClaim(String token) {
 		Claims claims = extractAllClaims(token);
 		return claims.get(ROLE_CLAIM).toString();
+	}
+
+	public String extractEnv(String token) throws JsonProcessingException {
+		String subject = extractClaimSubject(token);
+		return extractedJwtToken(subject).getEnv();
 	}
 
 	public <T> String extractClaimSubject(String token) {
@@ -79,12 +80,18 @@ public class JwtService {
 	}
 
 	public boolean isTokenValid(String token, User user) throws JsonMappingException, JsonProcessingException {
-		final String jwtToken = extractUsername(token);
-		return (jwtToken.equals(user.getUsername())) && !isTokenExpired(token);
+		final JwtToken jwtTokenObject = extractJwtObject(token);
+		return (jwtTokenObject.getUserName().equals(user.getUsername()))
+				&& (user.getUpdatedAt().equals(jwtTokenObject.getUpdatedAt())) && !isTokenExpired(token)
+				&& isCurrentEnv(token);
 	}
 
 	private boolean isTokenExpired(String token) {
 		return extractExpiration(token).before(new Date());
+	}
+
+	private boolean isCurrentEnv(String token) throws JsonProcessingException {
+		return extractEnv(token).equalsIgnoreCase(env);
 	}
 
 	private Date extractExpiration(String token) {

@@ -81,7 +81,7 @@ public class ContractDetailsServiceImpl implements ContractDetailsService {
 					&& contractPayment.getContractDetails().getStartDate().after(Date.valueOf(LocalDate.now())))
 					|| (contractPayment.getContractDetails().getStartDate().after(Date.valueOf(LocalDate.now())))
 					|| (contractPayment.getContractDetails().getEndDate().after(Date.valueOf(LocalDate.now())))) {
-				contractPayment.getContractDetails().setContractStatus(ContractStatus.NOT_STARTED);
+				contractPayment.getContractDetails().setContractStatus(ContractStatus.UPCOMING);
 			} else {
 				contractPayment.getContractDetails().setContractStatus(ContractStatus.ONGOING);
 			}
@@ -154,7 +154,7 @@ public class ContractDetailsServiceImpl implements ContractDetailsService {
 					&& contractPayment.getContractDetails().getStartDate().after(Date.valueOf(LocalDate.now())))
 					|| (contractPayment.getContractDetails().getStartDate().after(Date.valueOf(LocalDate.now())))
 					|| (contractPayment.getContractDetails().getEndDate().after(Date.valueOf(LocalDate.now())))) {
-				contractPayment.getContractDetails().setContractStatus(ContractStatus.NOT_STARTED);
+				contractPayment.getContractDetails().setContractStatus(ContractStatus.UPCOMING);
 			} else {
 				contractPayment.getContractDetails().setContractStatus(ContractStatus.ONGOING);
 			}
@@ -213,7 +213,7 @@ public class ContractDetailsServiceImpl implements ContractDetailsService {
 							.after(Date.valueOf(LocalDate.now())))
 					|| (employeeContractPayment.getContractDetails().getEndDate()
 							.after(Date.valueOf(LocalDate.now())))) {
-				employeeContractPayment.getContractDetails().setContractStatus(ContractStatus.NOT_STARTED);
+				employeeContractPayment.getContractDetails().setContractStatus(ContractStatus.UPCOMING);
 			} else {
 				employeeContractPayment.getContractDetails().setContractStatus(ContractStatus.ONGOING);
 			}

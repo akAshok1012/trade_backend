@@ -1,5 +1,6 @@
 package com.tm.app.rest;
 
+import java.sql.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,8 +52,8 @@ public class EmployeeLeaveManagerController {
 	@IsSuperAdminOrAdminOrEmployee
 	public APIResponse<?> getEmployeeLeaves(@ModelAttribute DataFilter dataFilter,
 			@RequestParam(value = "id", required = false) Long id,
-			@RequestParam(value = "fromDate", required = false) String fromDate,
-			@RequestParam(value = "toDate", required = false) String toDate,
+			@RequestParam(value = "fromDate", required = false) Date fromDate,
+			@RequestParam(value = "toDate", required = false) Date toDate,
 			@RequestParam EmployeeLeaveStatus employeeLeaveStatus) {
 		try {
 			Page<EmployeeLeaveManager> empLeaveManager = employeeLeaveManagerService.getEmployeeLeaves(dataFilter, id,
@@ -60,6 +61,7 @@ public class EmployeeLeaveManagerController {
 			return Response.getSuccessResponse(empLeaveManager, APIResponseConstants.SUCCESS_RESPONSE_MESSAGE,
 					HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

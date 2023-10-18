@@ -19,6 +19,6 @@ public class TokenService {
 		if (authorizationHeaderValue != null && authorizationHeaderValue.startsWith("Bearer ")) {
 			authorizationHeaderValue = authorizationHeaderValue.substring(7, authorizationHeaderValue.length());
 		}
-		return jwtService.extractUsername(authorizationHeaderValue);
+		return jwtService.extractJwtObject(authorizationHeaderValue).getUserName();
 	}
 }

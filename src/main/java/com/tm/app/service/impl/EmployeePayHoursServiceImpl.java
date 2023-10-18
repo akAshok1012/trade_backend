@@ -36,8 +36,8 @@ public class EmployeePayHoursServiceImpl implements EmployeePayHoursService {
 			BeanUtils.copyProperties(employeePayHoursDto, employeePayHours);
 			employeePayHours = employeePayHoursRepo.save(employeePayHours);
 		} catch (Exception e) {
-			log.error("[EmployeePayHoursServiceImpl] Saved EmployeePayHours Failed");
-			throw new RuntimeException(e.getMessage());
+			log.error("[EmployeePayHoursServiceImpl] Saved  Failed");
+			throw new RuntimeException("Employee and WorkDate Already Exists");
 		}
 		return employeePayHours;
 	}

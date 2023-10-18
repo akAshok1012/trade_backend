@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -70,6 +71,9 @@ public class UserServiceImpl implements UserService {
 
 	@Autowired
 	private NotificationRepo notificationRepo;
+
+	@Value("${server.env}")
+	private String env;
 
 	@Override
 	@Transactional
@@ -234,6 +238,7 @@ public class UserServiceImpl implements UserService {
 		jwtToken.setRole(user.getUserRoles().name());
 		jwtToken.setUserId(user.getId());
 		jwtToken.setIsFirstLogin(user.getIsFirstLogin());
+		jwtToken.setEnv(env);
 		return jwtService.generateToken(jwtToken);
 	}
 
@@ -258,7 +263,7 @@ public class UserServiceImpl implements UserService {
 				.userRoles(request.getUserRole()).userId(request.getEmpCusId()).updatedBy(request.getUpdatedBy())
 				.isFirstLogin(false).build();
 		User savedUser = userRepository.save(user);
-		
+
 		// insert in Notification table
 		updateUserNotification(user);
 		savedUser.setPassword(password);

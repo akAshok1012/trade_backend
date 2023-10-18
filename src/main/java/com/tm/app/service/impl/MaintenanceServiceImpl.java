@@ -40,7 +40,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 			if (authorizationHeaderValue != null && authorizationHeaderValue.startsWith("Bearer")) {
 				authorizationHeaderValue = authorizationHeaderValue.substring(7, authorizationHeaderValue.length());
 			}
-			String userName = jwtService.extractUsername(authorizationHeaderValue);
+			String userName = jwtService.extractJwtObject(authorizationHeaderValue).getUserName();
 			
 			maintenance.setUpdatedBy(userName);
 			BeanUtils.copyProperties(maintenanceDto, maintenance);
@@ -73,7 +73,7 @@ public class MaintenanceServiceImpl implements MaintenanceService {
 				authorizationHeaderValue = authorizationHeaderValue.substring(7, authorizationHeaderValue.length());
 			}
 
-			String userName = jwtService.extractUsername(authorizationHeaderValue);
+			String userName = jwtService.extractJwtObject(authorizationHeaderValue).getUserName();
 			maintenance.setMachineryId(maintenanceDto.getMachineryId());
 			maintenance.setDescription(maintenanceDto.getDescription());
 			maintenance.setMaintenanceDate(maintenanceDto.getMaintenanceDate());

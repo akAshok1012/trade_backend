@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
 <title>Invoice</title>
 
@@ -11,7 +12,7 @@ body {
 }
 
 .header {
-	display: flex;
+	display: fixed;
 	flex-direction: row;
 	justify-content: space-between;
 	border-bottom: 10px solid #ccc;
@@ -36,14 +37,26 @@ body {
 .invoice-table {
 	border-collapse: collapse;
 	width: 100%;
-	margin-top: 20px;
-	margin-bottom: 20px;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 
+/* .invoice-table td, .invoice-table th {
+	border: 1px solid #ccc;
+	padding: 4px; 
+	text-align: right;
+	max-width: 100%; 
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+} */
 .invoice-table td, .invoice-table th {
 	border: 1px solid #ccc;
-	padding: 8px;
+	padding: 4px;
 	text-align: left;
+	max-width: none;
+	overflow: visible;
+	white-space: normal;
 }
 
 .total {
@@ -57,130 +70,147 @@ body {
 .footer {
 	border-top: 10px solid #ccc;
 	font-weight: bold;
-	padding-top: 20px;
-	position: fixed;
+	padding-top: 220px;
 	left: 0;
 	bottom: 0;
 	width: 100%;
 }
+
+/*.footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #ccc; 
+    padding: 20px;
+    font-weight: bold;
+}*/
+
+.a4size {
+	height: 297mm;
+}
 </style>
 </head>
+
 <body>
-	<div class="header">
-		<table style="width: 100%">
-			<tr>
-				<td style="width: 50%; text-align: left; color: #662d91"><h1>Memo</h1></td>
-				<td style="width: 50%; text-align: right;"><img
-					th:src="${image}" alt="Logo" class="logo" /></td>
-			</tr>
-			<tr>
-				<td
-					style="width: 50%; text-align: left; color: blue; font-weight: bold;"
-					th:text="'Sales ID :'+${client.salesId}"></td>
-			</tr>
-			<tr>
-				<td
-					style="width: 50%; text-align: left; color: blue; font-weight: bold;"
-					th:text="'Date-Time :'+${client.updatedAt}"></td>
-			</tr>
-		</table>
-	</div>
-	<div class="client-info">
-		<table>
+	<div th:each="itemList, iterListStat: ${itemListGroup}" class="a4size">
+		<div class="header" th:if="${iterListStat.index==0}">
+			<table style="width: 100%">
+				<tr>
+					<td style="width: 50%; text-align: left; color: #662d91">
+						<h1>Memo</h1>
+					</td>
+					<td style="width: 50%; text-align: right;"><img
+						th:src="${image}" alt="Logo" class="logo" /></td>
+				</tr>
+				<tr>
+					<td
+						style="width: 50%; text-align: left; color: blue; font-weight: bold;"
+						th:text="'Sales ID :'+${client.salesId}"></td>
+				</tr>
+				<tr>
+					<td
+						style="width: 50%; text-align: left; color: blue; font-weight: bold;"
+						th:text="'Date-Time :'+${client.updatedAt}"></td>
+				</tr>
+			</table>
 
-			<tr>
-				<th><h3>
-						<b>Customer Details</b>
-					</h3></th>
-			</tr>
+			<table width="100%">
 
-			<tr>
-				<td th:text="${client.clientOrganization}"></td>
-			</tr>
-			<tr>
-				<td th:text="${client.clientName}"></td>
-			</tr>
-			<tr>
-				<td th:text="${client.clientAddress}"></td>
-			</tr>
-			<tr>
-				<td th:text="${client.clientEmail}"></td>
-			</tr>
-			<tr>
-				<td th:text="${client.clientPhoneNumber}"></td>
-			</tr>
-		</table>
-	</div>
-	<table class="invoice-table">
-		<thead>
-			<tr style="color: #662d91">
-				<th class="table-header">S.No</th>
-				<th class="table-header">Item</th>
-				<th class="table-header">Quantity</th>
-				<th class="table-header right">Unit price</th>
-				<th class="table-header right">Item total</th>
-			</tr>
-		</thead>
-		<tbody>
+				<tr>
+					<th>
+						<h3>
+							<b>Customer Details</b>
+						</h3>
+					</th>
+				</tr>
 
-			<tr th:each="item, iterStat: ${itemList}">
-				<td th:text="${iterStat.index + 1}" style="text-align: right;"></td>
-				<td th:text="${item.clientItemName}"></td>
-				<td th:text="${item.quantity}" style="text-align: right;"></td>
-				<td th:text="${item.unitPrice}" style="text-align: right;"></td>
-				<td th:text="${item.total}" style="text-align: right;"></td>
-			</tr>
-		</tbody>
-	</table>
-	<table style="width: 100%; padding-bottom: 20px;">
-		<tr>
-			<td colspan="5"></td>
-			<td th:text="'Total: '"
-				style="width: 100%; text-align: right; font-size: medium; font-weight: bold;"></td>
-			<td th:text="${grandTotal}"
-				style="width: 100%; text-align: right; font-size: medium;"></td>
-		</tr>
-		<tr>
-			<td th:text="'Amount in words : '+${totalInWords}"
-				style="width: 100%; text-align: left; font-size: medium;"></td>
-		</tr>
-	</table>
-	<div class="footer">
-		<table width="100%">
-			<tr>
-				<td>
-					<table style="float: left; width: 65%">
-						<tr>
-							<td>Contact us: KPRM RAMASSWAMI DHAL TRADING CO,</td>
-						</tr>
-						<tr>
-							<td>Naickenpatti(Po) Sivathapuram (Via),</td>
-						</tr>
-						<tr>
-							<td>Salem - 636 307, Tamilnadu, INDIA.</td>
-						</tr>
-						<tr>
-							<td>Email: customercare@kannenfoods.com</td>
-						</tr>
-						<tr>
-							<td>Web: www.kannenfoods.com</td>
-						</tr>
-						<tr>
-							<td>Customer care: +91 70944 44114</td>
-						</tr>
-					</table>
-				</td>
-				<td style="border: 1px solid; width: 35%; vertical-align: bottom;">
-					<table style="float: right;">
-						<tr>
-							<td style="padding: 20px">Prepared by</td>
-							<td style="padding: 20px">Verified by</td>
-							<td style="padding: 20px">Authorized signature</td>
-						</tr>
-					</table>
-				</td>
-			</tr>
+				<tr>
+					<td th:text="${client.clientOrganization}"></td>
+				</tr>
+				<tr>
+					<td th:text="${client.clientName}"></td>
+				</tr>
+				<tr>
+					<td th:text="${client.clientAddress}"></td>
+				</tr>
+				<tr>
+					<td th:text="${client.clientPhoneNumber}"></td>
+				</tr>
+			</table>
+		</div>
+		<table class="invoice-table" width="100%">
+			<thead>
+				<tr style="color: #662d91">
+					<th class="table-header" style="width: 5%;">S.No</th>
+					<th class="table-header" style="width: 50%;">Item</th>
+					<th class="table-header" style="width: 15%;">Quantity</th>
+					<th class="table-header right" style="width: 15%;">Unit price</th>
+					<th class="table-header right" style="width: 15%;">Item total</th>
+				</tr>
+			</thead>
+			<tbody>
+
+				<tr th:each="item, iterStat: ${itemList}">
+					<td
+						th:text="${(iterStat.index + 1) + ( iterListStat.index * salesInvoicePagePerData) }"
+						style="width: 5%;"></td>
+					<td th:text="${item.clientItemName}" style="width: 50%;"></td>
+					<td th:text="${item.quantity}" style="width: 15%;"></td>
+					<td th:text="${item.unitPrice}" style="width: 15%;"></td>
+					<td th:text="${item.total}" style="width: 15%;"></td>
+				</tr>
+				<tr th:if="${(iterListStat.index) == (itemListGroup.size()-1) }">
+					<td colspan="4" th:text="'Total: '"
+						style="text-align: right; font-size: medium; font-weight: bold;">
+					</td>
+					<td th:text="${grandTotal}"
+						style="text-align: right; font-size: medium;"></td>
+				</tr>
+				<tr th:if="${(iterListStat.index) == (itemListGroup.size()-1) }">
+					<td colspan="5" th:text="'Amount in words : '+${totalInWords}"
+						style="width: 100%; text-align: left; font-size: medium;"></td>
+				</tr>
+			</tbody>
 		</table>
+
+		<div class="footer">
+			<table width="100%">
+				<tr>
+					<td style="width: 65%;">
+						<table style="float: left;">
+							<tr>
+								<td>Contact us: KPRM RAMASSWAMI DHAL TRADING CO,</td>
+							</tr>
+							<tr>
+								<td>Naickenpatti(Po) Sivathapuram (Via),</td>
+							</tr>
+							<tr>
+								<td>Salem - 636 307, Tamilnadu, INDIA.</td>
+							</tr>
+							<tr>
+								<td>Email: customercare@kannenfoods.com</td>
+							</tr>
+							<tr>
+								<td>Web: www.kannenfoods.com</td>
+							</tr>
+							<tr>
+								<td>Customer care: +91 70944 44114</td>
+							</tr>
+						</table>
+					</td>
+					<td style="border: 1px solid; width: 35%; vertical-align: bottom;">
+						<table style="float: right;">
+							<tr>
+								<td style="padding: 20px">Prepared by</td>
+								<td style="padding: 20px">Verified by</td>
+								<td style="padding: 20px">Authorized signature</td>
+							</tr>
+						</table>
+					</td>
+				</tr>
+			</table>
+		</div>
 	</div>
 </body>
+
 </html>

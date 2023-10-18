@@ -17,4 +17,6 @@ public interface CustomerWalletRepo extends JpaRepository<CustomerWallet, Long> 
 	@Query("SELECT cw FROM CustomerWallet cw join Customer c on(cw.customer=c.id) where LOWER(c.name) like LOWER(:search)")
 	Page<CustomerWallet> findByCustomer(String search, PageRequest of);
 
+	boolean existsByCustomer(Customer customer);
+
 }

@@ -1,5 +1,7 @@
 package com.tm.app.service.impl;
 
+import java.sql.Date;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,7 +25,6 @@ import com.tm.app.repo.EmployeeRepo;
 import com.tm.app.repo.UserRepository;
 import com.tm.app.service.EmployeeLeaveManagerService;
 
-import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,12 +47,20 @@ public class EmployeeLeaveManagerServiceImpl implements EmployeeLeaveManagerServ
 		EmployeeLeaveManager empLeaveManager = new EmployeeLeaveManager();
 		try {
 			employeeLeaveManagerDto.setEmployeeLeaveStatus(EmployeeLeaveStatus.PENDING);
-			if (employeeLeaveManagerRepo.existsByEmployeeAndStartDateAndEndDate(employeeLeaveManagerDto.getEmployee(),
-					employeeLeaveManagerDto.getStartDate(), employeeLeaveManagerDto.getEndDate())) {
-				throw new RuntimeException("Employee leave already exists");
-			}
-			if(employeeLeaveManagerRepo.getCompensationDateBetweenStartAndEndDates(employeeLeaveManagerDto.getEmployee().getId(),
-							employeeLeaveManagerDto.getStartDate(),employeeLeaveManagerDto.getEndDate()).isPresent()) {
+			List<LocalDate> getBetweenDates = employeeLeaveManagerDto.getStartDate().toLocalDate()
+					.datesUntil(employeeLeaveManagerDto.getEndDate().toLocalDate().plusDays(1)).toList();
+			getBetweenDates.stream().forEach(date -> {
+				if (employeeLeaveManagerRepo.getByEmployeeAndDateBetween(employeeLeaveManagerDto.getEmployee(), date)
+						.isPresent()) {
+					throw new RuntimeException(
+							"Leave already exists between the start and end dates for the given date:"
+									+ date);
+				}
+			});
+			if (employeeLeaveManagerRepo
+					.getCompensationDateBetweenStartAndEndDates(employeeLeaveManagerDto.getEmployee().getId(),
+							employeeLeaveManagerDto.getStartDate(), employeeLeaveManagerDto.getEndDate())
+					.isPresent()) {
 				throw new RuntimeException("Compensation is present");
 			}
 			if (Objects.nonNull(employeeLeaveManagerDto.getCompensationDate()) && (employeeLeaveManagerRepo
@@ -73,7 +82,7 @@ public class EmployeeLeaveManagerServiceImpl implements EmployeeLeaveManagerServ
 
 	@Override
 	public Page<EmployeeLeaveManager> getEmployeeLeaves(DataFilter dataFilter, Long id,
-			EmployeeLeaveStatus employeeLeaveStatus, String fromDate, String toDate) {
+			EmployeeLeaveStatus employeeLeaveStatus, Date fromDate, Date toDate) {
 		log.info("[EmployeeLeaveManagerServiceImpl] getEmployeeLeaves starts ");
 		log.info("[FROM_DATE] ", fromDate);
 		log.info("[TO_DATE] ", toDate);
@@ -81,7 +90,8 @@ public class EmployeeLeaveManagerServiceImpl implements EmployeeLeaveManagerServ
 		if (Objects.nonNull(id)) {
 			User user = userRepository.findById(id).orElseThrow();
 			Employee employee = employeeRepo.findById(user.getUserId()).orElseThrow();
-			if (StringUtils.isNotEmpty(fromDate) && StringUtils.isNotEmpty(toDate)) {
+			
+			if (fromDate != null && toDate != null) {
 				return employeeLeaveManagerRepo
 						.getEmployeeLeavesWithDateFilter(employee, employeeLeaveStatus,
 								PageRequest.of(dataFilter.getPage(), dataFilter.getSize(),
@@ -93,7 +103,7 @@ public class EmployeeLeaveManagerServiceImpl implements EmployeeLeaveManagerServ
 								Sort.by(dataFilter.getSortBy(), dataFilter.getSortByField())));
 			}
 		} else {
-			if (StringUtils.isNotEmpty(fromDate) && StringUtils.isNotEmpty(toDate)) {
+			if (fromDate != null && toDate != null) {
 				return employeeLeaveManagerRepo.getEmployeeLeaveSearch(
 						PageRequest.of(dataFilter.getPage(), dataFilter.getSize(),
 								Sort.by(dataFilter.getSortBy(), dataFilter.getSortByField())),

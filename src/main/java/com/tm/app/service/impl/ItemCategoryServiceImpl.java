@@ -16,6 +16,7 @@ import com.tm.app.dto.ItemCategoryDto;
 import com.tm.app.entity.ItemCategory;
 import com.tm.app.repo.ItemCategoryRepo;
 import com.tm.app.service.ItemCategoryService;
+import com.tm.app.utils.APIResponseConstants;
 
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +35,14 @@ public class ItemCategoryServiceImpl implements ItemCategoryService {
 		log.info("[ItemCategory] Created itemCategory");
 		ItemCategory itemCategory = new ItemCategory();
 		try {
+			if(itemCategoryRepo.existsByCategoryNameIgnoreCase(itemCategoryDto.getCategoryName())) {
+				throw new RuntimeException(String.format(APIResponseConstants.ALREADY_EXISTS, itemCategoryDto.getCategoryName()));
+			}
 			BeanUtils.copyProperties(itemCategoryDto, itemCategory);
 			itemCategory = itemCategoryRepo.save(itemCategory);
 		} catch (Exception e) {
 			log.error("[ITEM] adding itemCategory failed", e);
-			throw new RuntimeException("Adding itemCategory failed");
+			throw new RuntimeException(e.getMessage());
 		}
 		return itemCategory;
 	}
@@ -78,13 +82,16 @@ public class ItemCategoryServiceImpl implements ItemCategoryService {
 		log.info("[ItemCategory] Updated itemCategory");
 		ItemCategory itemCategory = itemCategoryRepo.findById(id).orElseThrow();
 		try {
+			if(itemCategoryRepo.existsByCategoryNameIgnoreCase(itemCategoryDto.getCategoryName()) && !(itemCategory.getCategoryName().equalsIgnoreCase(itemCategoryDto.getCategoryName()))) {
+				throw new RuntimeException(String.format(APIResponseConstants.ALREADY_EXISTS, itemCategoryDto.getCategoryName()));
+			}
 			itemCategory.setCategoryName(itemCategoryDto.getCategoryName());
 			itemCategory.setCategoryDescription(itemCategoryDto.getCategoryDescription());
 			itemCategory.setUpdatedBy(itemCategoryDto.getUpdatedBy());
 			itemCategory = itemCategoryRepo.save(itemCategory);
 		} catch (Exception e) {
 			log.error("[ITEM] updating itemCategory failed", e);
-			throw new RuntimeException("Updating itemCategory failed");
+			throw new RuntimeException(e.getMessage());
 		}
 		return itemCategory;
 	}

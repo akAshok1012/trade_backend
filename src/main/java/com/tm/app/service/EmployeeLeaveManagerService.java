@@ -1,5 +1,6 @@
 package com.tm.app.service;
 
+import java.sql.Date;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -16,7 +17,7 @@ public interface EmployeeLeaveManagerService {
 	public EmployeeLeaveManager applyEmployeeLeave(EmployeeLeaveManagerDto employeeLeaveManagerDto);
 
 	public Page<EmployeeLeaveManager> getEmployeeLeaves(DataFilter dataFilter, Long id,
-			EmployeeLeaveStatus employeeLeaveStatus, String fromDate, String toDate);
+			EmployeeLeaveStatus employeeLeaveStatus, Date fromDate, Date toDate);
 
 	public EmployeeLeaveManager getEmployeeLeaveById(Long id);
 

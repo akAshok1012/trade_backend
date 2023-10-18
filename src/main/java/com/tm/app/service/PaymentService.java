@@ -60,7 +60,7 @@ public interface PaymentService {
 	public List<PaymentHistory> getViewPayment(Integer salesId);
 
 	public Page<PaymentStatusSalesIdDto> getPaymentStatusSalesId(PaymentStatus paymentStatus, Long id, Integer salesId,
-			DataFilter dataFilter);
+			DataFilter dataFilter, String searchName);
 
 	public Page<Payment> getPaymentsBySalesId(Integer salesId, DataFilter dataFilter);
 

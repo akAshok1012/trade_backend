@@ -279,8 +279,13 @@ public class PaymentServiceImpl implements PaymentService {
 
 	@Override
 	public Page<PaymentStatusSalesIdDto> getPaymentStatusSalesId(PaymentStatus paymentStatus, Long id, Integer salesId,
-			DataFilter dataFilter) {
+			DataFilter dataFilter,String searchName) {
 		String salesIdString = "%";
+		if (StringUtils.isEmpty(searchName)) {
+			searchName = "%";
+		} else {
+			searchName = searchName + "%";
+		}
 		if (id != null) {
 			User user = userRepository.findById(id).orElseThrow();
 			Customer customer = customerRepo.findById(user.getUserId()).orElseThrow();
@@ -297,11 +302,11 @@ public class PaymentServiceImpl implements PaymentService {
 		} else {
 			if (Objects.nonNull(salesId)) {
 				salesIdString = "%" + salesId.toString() + "%";
-				return paymentRepo.getPaymentStatusSalesId(paymentStatus, salesIdString,
+				return paymentRepo.getPaymentStatusSalesId(paymentStatus, salesIdString,searchName,
 						PageRequest.of(dataFilter.getPage(), dataFilter.getSize(),
 								Sort.by(dataFilter.getSortBy(), dataFilter.getSortByField())));
 			} else {
-				return paymentRepo.getPaymentStatusSalesId(paymentStatus, salesIdString,
+				return paymentRepo.getPaymentStatusSalesId(paymentStatus, salesIdString,searchName,
 						PageRequest.of(dataFilter.getPage(), dataFilter.getSize(),
 								Sort.by(dataFilter.getSortBy(), dataFilter.getSortByField())));
 			}

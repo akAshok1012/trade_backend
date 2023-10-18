@@ -21,4 +21,6 @@ public interface ExcelImportExportService {
 
 	ImportCsvResponse uploadEmployeePayHours(MultipartFile file, Class<?> forName) throws IOException, ParseException;
 
+	ImportCsvResponse uploadEmployeeWeeklyWages(MultipartFile file, Class<?> forName)throws IOException, ParseException;
+
 }

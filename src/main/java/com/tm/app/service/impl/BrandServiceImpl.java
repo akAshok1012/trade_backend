@@ -19,6 +19,7 @@ import com.tm.app.dto.DataFilter;
 import com.tm.app.entity.Brand;
 import com.tm.app.repo.BrandRepo;
 import com.tm.app.service.BrandService;
+import com.tm.app.utils.APIResponseConstants;
 
 import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
@@ -51,6 +52,9 @@ public class BrandServiceImpl implements BrandService {
 	public Brand saveBrand(BrandDto brandDto) {
 		Brand brand = new Brand();
 		try {
+			if (brandRepo.existsByNameIgnoreCase(brandDto.getName())) {
+				throw new RuntimeException(String.format(APIResponseConstants.ALREADY_EXISTS, brandDto.getName()));
+			}
 			BeanUtils.copyProperties(brandDto, brand);
 			if (StringUtils.isNotEmpty(brand.getLogoString())) {
 				brand.setLogo(brandDto.getLogoString().getBytes());
@@ -58,7 +62,7 @@ public class BrandServiceImpl implements BrandService {
 			brand = brandRepo.save(brand);
 		} catch (Exception e) {
 			log.error("[BRAND] adding brand failed", e);
-			throw new RuntimeException("Brand save failed");
+			throw new RuntimeException(e.getMessage());
 		}
 		return brand;
 	}
@@ -94,6 +98,9 @@ public class BrandServiceImpl implements BrandService {
 		log.info("[Brand] Update brand");
 		Brand brand = brandRepo.findById(id).orElseThrow();
 		try {
+			if (brandRepo.existsByNameIgnoreCase(brandDto.getName()) && !brand.getName().equalsIgnoreCase(brandDto.getName())) {
+				throw new RuntimeException(String.format(APIResponseConstants.ALREADY_EXISTS, brandDto.getName()));
+			}
 			brand.setDescription(brandDto.getDescription());
 			brand.setName(brandDto.getName());
 			if (StringUtils.isNotEmpty(brandDto.getLogoString())) {
@@ -102,7 +109,7 @@ public class BrandServiceImpl implements BrandService {
 			brand = brandRepo.save(brand);
 		} catch (Exception e) {
 			log.error("[BRAND] updating brand failed", e);
-			throw new RuntimeException("Updating brand failed");
+			throw new RuntimeException(e.getMessage());
 		}
 		return brand;
 	}

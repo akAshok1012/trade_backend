@@ -16,4 +16,8 @@ public interface MachineryRepo extends JpaRepository<Machinery, Long>{
 	@Query(value="SELECT m FROM Machinery m where LOWER(m.serialNumber) LIKE LOWER(:search) OR LOWER(m.modelNumber) LIKE LOWER(:search)")
 	Page<Machinery> findBySerialNumberLikeIgnoreCase(String search, PageRequest of);
 
+	boolean existsBySerialNumber(String serialNumber);
+
+	boolean existsBySerialNumberIgnoreCase(String serialNumber);
+
 }

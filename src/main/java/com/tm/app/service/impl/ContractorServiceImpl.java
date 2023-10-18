@@ -31,23 +31,28 @@ public class ContractorServiceImpl implements ContractorService {
 	@Override
 	public Contractor saveContractor(ContractorDto contractorDto) {
 		Contractor contractor = new Contractor();
-		if (Objects.nonNull(contractorDto.getPhoneNumber())
-				&& contractorRepo.existsByPhoneNumber(contractorDto.getPhoneNumber())) {
-			throw new RuntimeException("Phone Number Already Exists");
+		try {
+			if (Objects.nonNull(contractorDto.getPhoneNumber())
+					&& contractorRepo.existsByPhoneNumber(contractorDto.getPhoneNumber())) {
+				throw new RuntimeException("Phone Number Already Exists");
+			}
+			if (Objects.nonNull(contractorDto.getAadhaarNumber())
+					&& contractorRepo.existsByAadhaarNumber(contractorDto.getAadhaarNumber())) {
+				throw new RuntimeException("Aadhaar Number Already Exists");
+			}
+			if (Objects.nonNull(contractorDto.getEmail()) && contractorRepo.existsByEmail(contractorDto.getEmail())) {
+				throw new RuntimeException("Email Already Exists");
+			}
+			if (StringUtils.isNotEmpty(contractorDto.getPanNumber())
+					&& contractorRepo.existsByPanNumber(contractorDto.getPanNumber())) {
+				throw new RuntimeException("Pan Number Already Exists");
+			}
+			BeanUtils.copyProperties(contractorDto, contractor);
+			contractorRepo.save(contractor);
+		} catch (Exception e) {
+			throw new RuntimeException(e.getMessage());
 		}
-		if (Objects.nonNull(contractorDto.getAadhaarNumber())
-				&& contractorRepo.existsByAadhaarNumber(contractorDto.getAadhaarNumber())) {
-			throw new RuntimeException("Aadhaar Number Already Exists");
-		}
-		if (Objects.nonNull(contractorDto.getEmail()) && contractorRepo.existsByEmail(contractorDto.getEmail())) {
-			throw new RuntimeException("Email Already Exists");
-		}
-		if (StringUtils.isNotEmpty(contractorDto.getPanNumber())
-				&& contractorRepo.existsByPanNumber(contractorDto.getPanNumber())) {
-			throw new RuntimeException("Pan Number Already Exists");
-		}
-		BeanUtils.copyProperties(contractorDto, contractor);
-		return contractorRepo.save(contractor);
+		return contractor;
 	}
 
 	@Override
@@ -78,7 +83,8 @@ public class ContractorServiceImpl implements ContractorService {
 				&& !contractor.getEmail().equals(contractorDto.getEmail())) {
 			throw new RuntimeException("Email  already exists");
 		}
-		if (Objects.nonNull(contractorDto.getPanNumber()) && contractorRepo.existsByPanNumber(contractorDto.getPanNumber())
+		if (Objects.nonNull(contractorDto.getPanNumber())
+				&& contractorRepo.existsByPanNumber(contractorDto.getPanNumber())
 				&& !contractor.getPanNumber().equals(contractorDto.getPanNumber())) {
 			throw new RuntimeException("PAN Number already exists");
 		}

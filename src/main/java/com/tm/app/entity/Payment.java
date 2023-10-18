@@ -29,7 +29,7 @@ public class Payment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@Column(name = "sale_id")
 	private Integer salesId;
 
@@ -49,14 +49,14 @@ public class Payment {
 
 	@Column(name = "balance_amount")
 	private Float balanceAmount;
-	
+
 	@Column(insertable = false)
 	@UpdateTimestamp
 	private Timestamp paymentDate;
 
 	@Column(name = "payment_notes")
 	private String paymentNotes;
-	
+
 	@Enumerated(EnumType.STRING)
 	private PaymentStatus paymentStatus;
 
@@ -66,8 +66,8 @@ public class Payment {
 
 	@Column(name = "updated_by")
 	private String updatedBy;
-	
-	@Column(name="delivery_payable_amount",columnDefinition = "FLOAT default 0.0")
+
+	@Column(name = "delivery_payable_amount", columnDefinition = "FLOAT default 0.0")
 	private Float deliveryPayableAmount;
 
 }

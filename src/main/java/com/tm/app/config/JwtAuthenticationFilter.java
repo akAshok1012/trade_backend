@@ -38,21 +38,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 			filterChain.doFilter(request, response);
 			return;
 		}
-		jwt = authHeader.substring(7);
-		String jwtToken = jwtService.extractUsername(jwt);
-		if (jwtToken != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-			User userDetails = userRepository.findByUserNameIgnoreCase(jwtToken).orElseThrow();
-			if (jwtService.isTokenValid(jwt, userDetails)) {
-				UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
-						null, List.of(new SimpleGrantedAuthority(userDetails.getUserRoles().name())));
-				authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-				SecurityContextHolder.getContext().setAuthentication(authToken);
-			}
-		}
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setHeader("Access-Control-Allow-Credentials", "true");
 		response.setHeader("Access-Control-Allow-Methods", "*");
 		response.setHeader("Access-Control-Allow-Headers", "*");
-		filterChain.doFilter(request, response);
+
+		jwt = authHeader.substring(7);
+		try {
+			String jwtToken = jwtService.extractJwtObject(jwt).getUserName();
+			if (jwtToken != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+				User userDetails = userRepository.findByUserNameIgnoreCase(jwtToken).orElseThrow();
+				if (jwtService.isTokenValid(jwt, userDetails)) {
+					UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails,
+							null, List.of(new SimpleGrantedAuthority(userDetails.getUserRoles().name())));
+					authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+					SecurityContextHolder.getContext().setAuthentication(authToken);
+					filterChain.doFilter(request, response);
+				} else {
+					response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+		}
+
 	}
 }

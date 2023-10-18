@@ -12,4 +12,6 @@ public interface BrandRepo extends JpaRepository<Brand, Long> {
 
 	Page<Brand> findByNameLikeIgnoreCase(String search, PageRequest of);
 
+	boolean existsByNameIgnoreCase(String name);
+
 }

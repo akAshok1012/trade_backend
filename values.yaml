@@ -1,8 +1,9 @@
-postgresql:
-  enabled: false  # Set to false since the database is external
-  postgresqlDatabase: trade
-  postgresqlUsername: postgres
-  postgresqlPassword: root
-  postgresqlHost: postgres-service
-  postgresqlPort: 5432
+springboot:
+  enabled: false
+  postgresql:
+    host: {{ include "postgres-chart.fullname" . }} # Link to the PostgreSQL service
+    port: 5432
+    database: trade
+    username: postgres
+    password: root
 

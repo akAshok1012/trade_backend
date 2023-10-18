@@ -10,16 +10,24 @@ import com.tm.app.entity.CustomerSalesAndOrderAndPaymentSummary;
 import com.tm.app.entity.CustomerSalesAndOrderSummary;
 import com.tm.app.entity.DailyLeadGeneration;
 import com.tm.app.entity.DailyPaymentSummary;
+import com.tm.app.entity.DailyProductionCount;
 import com.tm.app.entity.DailySalesAndOrdersAndPaymentCount;
 import com.tm.app.entity.LeadCountAndCreatedBy;
 import com.tm.app.entity.LeadCountWithStatus;
 import com.tm.app.entity.MonthlyPaymentSummary;
+import com.tm.app.entity.MonthlyProductionCount;
 import com.tm.app.entity.MonthlySalesAndOrdersAndPaymentCount;
 import com.tm.app.entity.OrdersPerCustomer;
+import com.tm.app.entity.ProductionAndUomByBrand;
+import com.tm.app.entity.ProductionAndUomByItem;
+import com.tm.app.entity.ProductionCount;
+import com.tm.app.entity.ProductionCountByBrand;
+import com.tm.app.entity.ProductionCountByItem;
 import com.tm.app.entity.SalesAndOrderCount;
 import com.tm.app.entity.SalesPerCustomer;
 import com.tm.app.entity.TotalPaymentSummary;
 import com.tm.app.entity.WeeklyLeadGeneration;
+import com.tm.app.entity.WeeklyProductionCount;
 import com.tm.app.entity.WeeklySalesAndOrdersAndPaymentCount;
 import com.tm.app.entity.YearlyLeadGeneration;
 
@@ -62,5 +70,21 @@ public interface AnalyticsService {
 	public List<WeeklySalesAndOrdersAndPaymentCount> getWeeklySalesAndOrdersAndPaymentCount();
 
 	public CustomerSalesAndOrderAndPaymentSummary getCustomerSalesAndOrderAndPayments(Long id);
+
+	public List<ProductionCount> getProductionCount(Long id);
+
+	public List<MonthlyProductionCount> getMonthlyProductionCount();
+
+	public List<WeeklyProductionCount> getWeeklyProductionCount();
+
+	public List<ProductionCountByBrand> getProductionCountByBrand(Long id);
+
+	public List<DailyProductionCount> getDailyProductionCount();
+
+	public List<ProductionCountByItem> getProductionCountByItem(Long id);
+
+	public List<ProductionAndUomByBrand> getProductionAndUomByBrand(Long id);
+
+	public List<ProductionAndUomByItem> getProductionAndUomByItem(Long id);
 
 }

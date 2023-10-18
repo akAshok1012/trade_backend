@@ -26,6 +26,7 @@ import com.tm.app.repo.BrandRepo;
 import com.tm.app.repo.ItemMasterRepo;
 import com.tm.app.repo.NotificationRepo;
 import com.tm.app.service.ItemMasterService;
+import com.tm.app.utils.APIResponseConstants;
 
 import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
@@ -62,6 +63,12 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	@CacheEvict(value = "itemMaster", allEntries = true)
 	public ItemMaster saveItemMaster(ItemMasterDto itemMasterDto) {
 		ItemMaster itemMaster = new ItemMaster();
+		if (itemMasterRepo.existsByItemNameIgnoreCaseAndItemCategoryAndBrand(itemMasterDto.getItemName(),
+				itemMasterDto.getItemCategory(), itemMasterDto.getBrand())) {
+			throw new RuntimeException(
+					String.format(APIResponseConstants.ITEM_DETAILS_ALREADY_EXISTS, itemMasterDto.getItemName(),
+							itemMasterDto.getItemCategory().getCategoryName(), itemMasterDto.getBrand().getName()));
+		}
 		BeanUtils.copyProperties(itemMasterDto, itemMaster);
 		if (StringUtils.isNotEmpty(itemMasterDto.getItemImage())) {
 			itemMaster.setItemImage(itemMasterDto.getItemImage().getBytes());
@@ -99,6 +106,15 @@ public class ItemMasterServiceImpl implements ItemMasterService {
 	public ItemMaster updateItemMaster(Long id, ItemMasterDto itemMasterDto) {
 		log.info("Update Item Master");
 		ItemMaster itemMaster = itemMasterRepo.findById(id).orElseThrow();
+		if (itemMasterRepo.existsByItemNameIgnoreCaseAndItemCategoryAndBrand(itemMasterDto.getItemName(),
+				itemMasterDto.getItemCategory(), itemMasterDto.getBrand())
+				&& !(itemMaster.getItemName().equalsIgnoreCase(itemMasterDto.getItemName())
+						&& itemMaster.getItemCategory().equals(itemMasterDto.getItemCategory())
+						&& itemMaster.getBrand().equals(itemMasterDto.getBrand()))) {
+			throw new RuntimeException(
+					String.format(APIResponseConstants.ITEM_DETAILS_ALREADY_EXISTS, itemMasterDto.getItemName(),
+							itemMasterDto.getItemCategory().getCategoryName(), itemMasterDto.getBrand().getName()));
+		}
 		itemMaster.setItemName(itemMasterDto.getItemName());
 		itemMaster.setUnitOfMeasures(itemMasterDto.getUnitOfMeasures());
 		itemMaster.setFixedPrice(itemMasterDto.getFixedPrice());

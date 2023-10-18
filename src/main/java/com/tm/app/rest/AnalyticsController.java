@@ -17,16 +17,24 @@ import com.tm.app.entity.CustomerSalesAndOrderAndPaymentSummary;
 import com.tm.app.entity.CustomerSalesAndOrderSummary;
 import com.tm.app.entity.DailyLeadGeneration;
 import com.tm.app.entity.DailyPaymentSummary;
+import com.tm.app.entity.DailyProductionCount;
 import com.tm.app.entity.DailySalesAndOrdersAndPaymentCount;
 import com.tm.app.entity.LeadCountAndCreatedBy;
 import com.tm.app.entity.LeadCountWithStatus;
 import com.tm.app.entity.MonthlyPaymentSummary;
+import com.tm.app.entity.MonthlyProductionCount;
 import com.tm.app.entity.MonthlySalesAndOrdersAndPaymentCount;
 import com.tm.app.entity.OrdersPerCustomer;
+import com.tm.app.entity.ProductionAndUomByBrand;
+import com.tm.app.entity.ProductionAndUomByItem;
+import com.tm.app.entity.ProductionCount;
+import com.tm.app.entity.ProductionCountByBrand;
+import com.tm.app.entity.ProductionCountByItem;
 import com.tm.app.entity.SalesAndOrderCount;
 import com.tm.app.entity.SalesPerCustomer;
 import com.tm.app.entity.TotalPaymentSummary;
 import com.tm.app.entity.WeeklyLeadGeneration;
+import com.tm.app.entity.WeeklyProductionCount;
 import com.tm.app.entity.WeeklySalesAndOrdersAndPaymentCount;
 import com.tm.app.entity.YearlyLeadGeneration;
 import com.tm.app.security.annotations.IsSuperAdmin;
@@ -250,6 +258,94 @@ public class AnalyticsController {
 			CustomerSalesAndOrderAndPaymentSummary customerSalesAndOrderAndPaymentSummaries = dashboardService
 					.getCustomerSalesAndOrderAndPayments(id);
 			return Response.getSuccessResponse(customerSalesAndOrderAndPaymentSummaries, "Success", HttpStatus.OK);
+		} catch (Exception e) {
+			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/production-count")
+	@IsSuperAdminOrAdminOrCustomer
+	public APIResponse<?> getProductionCount(@RequestParam(value = "id", required = false) Long id) {
+		try {
+			List<ProductionCount> productionCounts = dashboardService.getProductionCount(id);
+			return Response.getSuccessResponse(productionCounts, "Success", HttpStatus.OK);
+		} catch (Exception e) {
+			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/monthly-production-count")
+	@IsSuperAdminOrAdminOrCustomer
+	public APIResponse<?> getMonthlyProductionCount() {
+		try {
+			List<MonthlyProductionCount> monthlyProductionCounts = dashboardService.getMonthlyProductionCount();
+			return Response.getSuccessResponse(monthlyProductionCounts, "Success", HttpStatus.OK);
+		} catch (Exception e) {
+			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/weekly-production-count")
+	@IsSuperAdminOrAdminOrCustomer
+	public APIResponse<?> getWeeklyProductionCount() {
+		try {
+			List<WeeklyProductionCount> weeklyProductionCounts = dashboardService.getWeeklyProductionCount();
+			return Response.getSuccessResponse(weeklyProductionCounts, "Success", HttpStatus.OK);
+		} catch (Exception e) {
+			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/production-count-by-brand")
+	@IsSuperAdminOrAdminOrCustomer
+	public APIResponse<?> getProductionCountByBrand(@RequestParam(value = "id", required = false) Long id) {
+		try {
+			List<ProductionCountByBrand> productionCountByBrands = dashboardService.getProductionCountByBrand(id);
+			return Response.getSuccessResponse(productionCountByBrands, "Success", HttpStatus.OK);
+		} catch (Exception e) {
+			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/daily-production-count")
+	@IsSuperAdminOrAdminOrCustomer
+	public APIResponse<?> getDailyProductionCount() {
+		try {
+			List<DailyProductionCount> dailyProductionCounts = dashboardService.getDailyProductionCount();
+			return Response.getSuccessResponse(dailyProductionCounts, "Success", HttpStatus.OK);
+		} catch (Exception e) {
+			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/production-count-by-item")
+	@IsSuperAdminOrAdminOrCustomer
+	public APIResponse<?> getProductionCountByItem(@RequestParam(value = "id", required = false) Long id) {
+		try {
+			List<ProductionCountByItem> productionCountByItems = dashboardService.getProductionCountByItem(id);
+			return Response.getSuccessResponse(productionCountByItems, "Success", HttpStatus.OK);
+		} catch (Exception e) {
+			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/production-uom-by-brand")
+	@IsSuperAdminOrAdminOrCustomer
+	public APIResponse<?> getProductionAndUomByBrand(@RequestParam(value = "id", required = false) Long id) {
+		try {
+			List<ProductionAndUomByBrand> productionAndUomByBrands = dashboardService.getProductionAndUomByBrand(id);
+			return Response.getSuccessResponse(productionAndUomByBrands, "Success", HttpStatus.OK);
+		} catch (Exception e) {
+			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+
+	@GetMapping("/production-uom-by-item")
+	@IsSuperAdminOrAdminOrCustomer
+	public APIResponse<?> getProductionAndUomByItem(@RequestParam(value = "id", required = false) Long id) {
+		try {
+			List<ProductionAndUomByItem> productionAndUomByItems = dashboardService.getProductionAndUomByItem(id);
+			return Response.getSuccessResponse(productionAndUomByItems, "Success", HttpStatus.OK);
 		} catch (Exception e) {
 			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
 		}

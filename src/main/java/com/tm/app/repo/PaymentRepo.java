@@ -84,9 +84,9 @@ public interface PaymentRepo extends JpaRepository<Payment, Long> {
 	@Query("select tp from Payment tp where paymentStatus IN ('UNPAID','PARTIAL') and cast(tp.salesId as text) like (:salesIdString)")
 	Page<Payment> getPaymentsBySalesId(String salesIdString, PageRequest of);
 
-	@Query("Select new com.tm.app.dto.PaymentStatusSalesIdDto(so.salesId as salesId,c.name as customerName,p.paymentStatus as paymentStatus,p.totalPaidAmount as paidAmount,p.totalOrderAmount as paymentAmount,p.paymentDate as paymentDate) from Payment p join SalesOrder so ON(p.salesId=so.salesId) join Customer c ON(p.customer=c.id) where p.paymentStatus = :paymentStatus and cast(p.salesId as text) like (:salesIdString)")
+	@Query("Select new com.tm.app.dto.PaymentStatusSalesIdDto(so.salesId as salesId,c.name as customerName,p.paymentStatus as paymentStatus,p.totalPaidAmount as paidAmount,p.totalOrderAmount as paymentAmount,p.paymentDate as paymentDate) from Payment p join SalesOrder so ON(p.salesId=so.salesId) join Customer c ON(p.customer=c.id) where p.paymentStatus = :paymentStatus and cast(p.salesId as text) like (:salesIdString) and Lower(c.name) like LOWER(:searchName)")
 	Page<PaymentStatusSalesIdDto> getPaymentStatusSalesId(PaymentStatus paymentStatus, String salesIdString,
-			PageRequest of);
+			String searchName, PageRequest of);
 
 	@Query("Select new com.tm.app.dto.OutstandingPaymentHistoryOrderDto(o.orderId as orderId,p.totalOrderAmount as paymentAmount,p.totalPaidAmount as paidAmount,p.balanceAmount as balanceAmount,c.name as name,o.updatedAt as dateTime) from Payment p join SalesOrder so ON(p.salesId=so.salesId) Join Order o On(o.orderId = so.order) Join Customer c ON (o.customer=c.id) where c.id = :id and p.paymentStatus NOT IN('PAID')")
 	List<OutstandingPaymentHistoryOrderDto> getOutstandingOrderPayment(Long id);
@@ -94,7 +94,7 @@ public interface PaymentRepo extends JpaRepository<Payment, Long> {
 	@Query("SELECT t From Payment t where t.paymentStatus NOT IN('PAID') and t.deliveryPayableAmount >0 and t.customer=:customerId order by salesOrderDate")
 	List<Payment> getPendingPayments(Customer customerId);
 
-	@Query("SELECT new com.tm.app.dto.ShipmentPaymentCreditPaymentWalletDto(p as payment, cpt as creditPaymentTrack, cw as customerWallet) from Payment p full outer join CreditPaymentTrack cpt on(p.id=cpt.paymentId) join CustomerWallet cw on(p.customer=cw.customer) where p.salesId=:salesId")
+	@Query("SELECT new com.tm.app.dto.ShipmentPaymentCreditPaymentWalletDto(p as payment, cpt as creditPaymentTrack, cw as customerWallet) from Payment p full outer join CreditPaymentTrack cpt on(p.id=cpt.paymentId) full outer join CustomerWallet cw on(p.customer=cw.customer) where p.salesId=:salesId")
 	ShipmentPaymentCreditPaymentWalletDto getPaymentCreditPaymentWalletDetails(Integer salesId);
 
 }

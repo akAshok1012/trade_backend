@@ -24,13 +24,11 @@ import com.tm.app.utils.APIResponse;
 import com.tm.app.utils.APIResponseConstants;
 import com.tm.app.utils.Response;
 
-import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RestController
 @CrossOrigin(origins = "*", allowedHeaders = "*")
-@Transactional
 public class ContractorController {
 
 	@Autowired
@@ -43,8 +41,9 @@ public class ContractorController {
 		try {
 			Contractor contractor = contractService.saveContractor(contractorDto);
 			return Response.getSuccessResponse(contractor,
-					String.format(APIResponseConstants.CREATION_SUCCESS_MESSAGE, contractor.getName()), HttpStatus.OK);
+					"Success", HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			log.error("[ContractorController] saveContractor failed", e);
 			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
@@ -70,7 +69,7 @@ public class ContractorController {
 		log.info("[ContractorController] getContractorById starts ");
 		try {
 			Contractor contractor = contractService.getContractorById(id);
-			return Response.getSuccessResponse(contractor, APIResponseConstants.SUCCESS_RESPONSE_MESSAGE,
+			return Response.getSuccessResponse(contractor,"updated Successfully",
 					HttpStatus.OK);
 		} catch (Exception e) {
 			log.error("[ContractorController] getContractorById failed", e);

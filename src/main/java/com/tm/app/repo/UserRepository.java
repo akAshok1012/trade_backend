@@ -17,6 +17,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 	Optional<User> findByUserName(String userName);
 
 	Optional<User> findByUserNameIgnoreCase(String userName);
+	
+	@Query("Select u from User u where u.userName =:userName and id !=:id")
+	User getUserNameForUpdateUserName(String userName,Long id);
 
 	Page<User> findByUserNameLikeIgnoreCase(String search, PageRequest of);
 

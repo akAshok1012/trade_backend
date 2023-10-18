@@ -78,10 +78,24 @@ public class ExcelImportExportController {
 		log.info("[ExcelImportExportController] uploadEmployeePayHours Starts ");
 		try {
 			ImportCsvResponse importCsvResponse = excelImportExportService.uploadEmployeePayHours(file,
-					Class.forName("com.tm.app.entity.Employee"));
+					Class.forName("com.tm.app.entity.EmployeePayHours"));
 			return ResponseEntity.ok().body(importCsvResponse);
 		} catch (Exception e) {
 			log.error("[ExcelImportExportController] uploadEmployeePayHours Failed", e);
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body("An error occurred during Excel import.");
+		}
+	}
+	
+	@PostMapping("/upload-employee-weekly-wages")
+	public ResponseEntity<?> uploadEmployeeWeeklyWages(@RequestParam("file") MultipartFile file) {
+		log.info("[ExcelImportExportController] uploadEmployeeWeeklyWages Starts ");
+		try {
+			ImportCsvResponse importCsvResponse = excelImportExportService.uploadEmployeeWeeklyWages(file,
+					Class.forName("com.tm.app.entity.EmployeeWeeklyWages"));
+			return ResponseEntity.ok().body(importCsvResponse);
+		} catch (Exception e) {
+			log.error("[ExcelImportExportController] uploadEmployeeWeeklyWages Failed", e);
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 					.body("An error occurred during Excel import.");
 		}

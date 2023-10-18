@@ -271,32 +271,34 @@ public class PaymentController {
 	@GetMapping("/payment-status-salesid")
 	@IsSuperAdminOrAdminOrCustomer
 	public APIResponse<?> getPaymentStatusSalesId(@RequestParam PaymentStatus paymentStatus,@RequestParam(value="id",required = false) Long id,
-			@RequestParam(value="salesId",required = false) Integer salesId, @ModelAttribute DataFilter dataFilter) {
+			@RequestParam(value="salesId",required = false) Integer salesId, @ModelAttribute DataFilter dataFilter,@RequestParam(value="search",required = false)String searchName) {
 		try {
 			Page<PaymentStatusSalesIdDto> paymentStatusSalesIdDto = paymentService
-					.getPaymentStatusSalesId(paymentStatus, id, salesId, dataFilter);
+					.getPaymentStatusSalesId(paymentStatus, id, salesId, dataFilter,searchName);
 			return Response.getSuccessResponse(paymentStatusSalesIdDto, "success", HttpStatus.OK);
 		} catch (Exception e) {
 			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@GetMapping("/payments-bySalesId")
 	@IsSuperAdminOrAdmin
-	public APIResponse<?> getPaymentsBySalesId(@RequestParam(value="salesId",required = false) Integer salesId, @ModelAttribute DataFilter dataFilter) {
+	public APIResponse<?> getPaymentsBySalesId(@RequestParam(value = "salesId", required = false) Integer salesId,
+			@ModelAttribute DataFilter dataFilter) {
 		try {
-			Page<Payment> payments = paymentService.getPaymentsBySalesId(salesId,dataFilter);
+			Page<Payment> payments = paymentService.getPaymentsBySalesId(salesId, dataFilter);
 			return Response.getSuccessResponse(payments, "Success", HttpStatus.OK);
 		} catch (Exception e) {
 			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
+
 	@GetMapping("/outstanding-order-payment")
 	@IsSuperAdminOrAdmin
 	public APIResponse<?> getOutstandingOrderPayment(@RequestParam("id") Long id) {
 		try {
-			List<OutstandingPaymentHistoryOrderDto> outstandingPaymentHistoryOrderDto = paymentService.getOutstandingOrderPayment(id);
+			List<OutstandingPaymentHistoryOrderDto> outstandingPaymentHistoryOrderDto = paymentService
+					.getOutstandingOrderPayment(id);
 			return Response.getSuccessResponse(outstandingPaymentHistoryOrderDto, "success", HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();

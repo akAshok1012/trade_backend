@@ -198,6 +198,7 @@ public class UserController {
 			User updatePassword = userService.changePassword(changePasswordDto);
 			return Response.getSuccessResponse(updatePassword, "Password Updated Successfully", HttpStatus.OK);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return Response.getFailureResponse(e, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}

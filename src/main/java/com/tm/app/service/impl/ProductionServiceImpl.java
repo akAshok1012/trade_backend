@@ -2,7 +2,10 @@ package com.tm.app.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +17,9 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.tm.app.dto.DataFilter;
 import com.tm.app.dto.ProductionDto;
+import com.tm.app.entity.ItemMaster;
 import com.tm.app.entity.Production;
+import com.tm.app.entity.ProductionDetails;
 import com.tm.app.entity.Stock;
 import com.tm.app.entity.UnitOfMeasure;
 import com.tm.app.enums.ProductionStatus;
@@ -29,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
+@Transactional
 public class ProductionServiceImpl implements ProductionService {
 
 	@Autowired
@@ -41,7 +47,6 @@ public class ProductionServiceImpl implements ProductionService {
 	private TokenService tokenService;
 
 	@Override
-	@Transactional
 	public Production saveProduction(ProductionDto productionDto, HttpServletRequest request)
 			throws JsonProcessingException {
 		Production production = new Production();
@@ -62,7 +67,6 @@ public class ProductionServiceImpl implements ProductionService {
 	}
 
 	@Override
-	@Transactional
 	public Production updateProductionById(Long id, ProductionDto productionDto, HttpServletRequest request)
 			throws JsonProcessingException {
 		Production production = new Production();
@@ -77,12 +81,32 @@ public class ProductionServiceImpl implements ProductionService {
 	}
 
 	@Override
-	@Transactional
 	public void deleteProductionById(Long id) {
 		try {
-			productionRepository.deleteById(id);
+			// Retrieve the Production and related Stock records
+			Optional<Production> productionOptional = productionRepository.findById(id);
+
+			if (productionOptional.isPresent()) {
+				Production production = productionOptional.get();
+
+				production.getProductionDetails().stream().forEach(r -> {
+					Stock existingStock = stockRepo.findByItemMasterAndUnitOfMeasure(production.getItemMaster(),
+							r.getUnitOfMeasure());
+					existingStock.setInStock(existingStock.getInStock() - r.getQuantity());
+				});
+
+				ItemMaster itemMaster = production.getItemMaster();
+
+				if (itemMaster != null) {
+
+					productionRepository.deleteById(id);
+				}
+			} else {
+				log.error("[PRODUCTION] Deleting production failed: Production not found");
+				throw new RuntimeException("Deleting production failed: Production not found");
+			}
 		} catch (Exception e) {
-			log.error("[PRODUCTION] deleting production failed", e);
+			log.error("[PRODUCTION] Deleting production failed", e);
 			throw new RuntimeException("Deleting production failed");
 		}
 	}
@@ -100,6 +124,7 @@ public class ProductionServiceImpl implements ProductionService {
 
 	/**
 	 * Save Stock
+	 * 
 	 * @param productionDto
 	 * @param production
 	 * @param stockList
@@ -108,28 +133,30 @@ public class ProductionServiceImpl implements ProductionService {
 		if (Objects.nonNull(production)) {
 			if (production.getStatus().equals(ProductionStatus.FINISHED)) {
 				production.getProductionDetails().forEach(r -> {
-				
-			         UnitOfMeasure uom = r.getUnitOfMeasure();
-			         Stock existingStock = stockRepo.findByItemMasterAndUnitOfMeasure(productionDto.getItemMaster(),uom);
-			         
-			         if (existingStock != null) {
-			                existingStock.setInStock(existingStock.getInStock() + r.getQuantity());
-			                existingStock.setUpdatedBy(productionDto.getUpdatedBy());
-			                stockRepo.save(existingStock);
-			            } else {
-			                Stock stock = new Stock();
-			                stock.setInStock(r.getQuantity());
-			                stock.setUnitOfMeasure(uom);
-			                stock.setItemMaster(productionDto.getItemMaster());
-			                stock.setUpdatedBy(productionDto.getUpdatedBy());
-			                stockList.add(stock);
-			            }
-			        });
-			        if (!stockList.isEmpty()) {
-			            stockRepo.saveAll(stockList);
-			        }
-			    }
-			} else {
+
+					UnitOfMeasure uom = r.getUnitOfMeasure();
+					Stock existingStock = stockRepo.findByItemMasterAndUnitOfMeasure(productionDto.getItemMaster(),
+							uom);
+
+					if (existingStock != null) {
+						existingStock.setInStock(existingStock.getInStock() + r.getQuantity());
+						existingStock.setUpdatedBy(productionDto.getUpdatedBy());
+						stockRepo.save(existingStock);
+					} else {
+						Stock stock = new Stock();
+						stock.setInStock(r.getQuantity());
+						stock.setUnitOfMeasure(uom);
+						stock.setItemMaster(productionDto.getItemMaster());
+						stock.setUpdatedBy(productionDto.getUpdatedBy());
+						stockList.add(stock);
+					}
+				});
+				if (!stockList.isEmpty()) {
+					stockRepo.saveAll(stockList);
+				}
 			}
+		} else {
+		}
 	}
+
 }

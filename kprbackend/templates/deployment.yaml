@@ -33,6 +33,13 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://{{ .Values.kprbackend.postgresql.host }}:{{ .Values.kprbackend.postgresql.port }}/{{ .Values.kprbackend.postgresql.database }}
+            - name: SPRING_DATASOURCE_USERNAME
+              value: {{ .Values.kprbackend.postgresql.username }}
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: {{ .Values.kprbackend.postgresql.password }}
           ports:
             - name: http
               containerPort: 9200

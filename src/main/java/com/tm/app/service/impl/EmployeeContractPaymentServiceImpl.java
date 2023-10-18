@@ -107,7 +107,7 @@ public class EmployeeContractPaymentServiceImpl implements EmployeeContractPayme
 					&& contractPayment.getContractDetails().getStartDate().after(Date.valueOf(LocalDate.now())))
 					|| (contractPayment.getContractDetails().getStartDate().after(Date.valueOf(LocalDate.now())))
 					|| (contractPayment.getContractDetails().getEndDate().after(Date.valueOf(LocalDate.now())))) {
-				contractPayment.getContractDetails().setContractStatus(ContractStatus.NOT_STARTED);
+				contractPayment.getContractDetails().setContractStatus(ContractStatus.UPCOMING);
 			} else {
 				contractPayment.getContractDetails().setContractStatus(ContractStatus.ONGOING);
 			}

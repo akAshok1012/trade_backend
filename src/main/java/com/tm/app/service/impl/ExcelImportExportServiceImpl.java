@@ -35,6 +35,7 @@ import com.tm.app.entity.Customer;
 import com.tm.app.entity.Employee;
 import com.tm.app.entity.EmployeeDepartment;
 import com.tm.app.entity.EmployeePayHours;
+import com.tm.app.entity.EmployeeWeeklyWages;
 import com.tm.app.entity.ReportConfiguration;
 import com.tm.app.enums.CustomerType;
 import com.tm.app.repo.ContractEmployeeRepo;
@@ -43,6 +44,7 @@ import com.tm.app.repo.CustomerRepo;
 import com.tm.app.repo.EmployeeDepartmentRepo;
 import com.tm.app.repo.EmployeePayHoursRepo;
 import com.tm.app.repo.EmployeeRepo;
+import com.tm.app.repo.EmployeeWeeklyWagesRepo;
 import com.tm.app.repo.ReportConfigurationRepo;
 import com.tm.app.service.ExcelImportExportService;
 import com.tm.app.utils.TableMetaData;
@@ -76,6 +78,9 @@ public class ExcelImportExportServiceImpl implements ExcelImportExportService {
 
 	@Autowired
 	private EmployeePayHoursRepo employeePayHoursRepo;
+
+	@Autowired
+	private EmployeeWeeklyWagesRepo employeeWeeklyWagesRepo;
 
 	@Autowired
 	private ReportConfigurationRepo configurationRepo;
@@ -979,7 +984,7 @@ public class ExcelImportExportServiceImpl implements ExcelImportExportService {
 						if (Objects.isNull(employee)) {
 							employeePayHours.setErrorDescription("Employee should not be empty");
 						} else {
-							employeePayHours.setErrorDescription(employee + " contractor not present");
+							employeePayHours.setErrorDescription(employee + " Employee not present");
 						}
 						errorList.add(employeePayHours);
 						failureCount++;
@@ -1013,4 +1018,188 @@ public class ExcelImportExportServiceImpl implements ExcelImportExportService {
 		return errorList;
 	}
 
+	@Override
+	public ImportCsvResponse uploadEmployeeWeeklyWages(MultipartFile file, Class<?> clazz)
+			throws IOException, ParseException {
+		log.info("[ExcelImportExportServiceImpl] uploadEmployeeWeeklyWages starts");
+		ImportCsvResponse importCsvResponse = new ImportCsvResponse();
+		Annotation annotation = clazz.getAnnotation(Table.class);
+		Table tableAnnotation = (Table) annotation;
+		ReportConfiguration reportConfiguration = configurationRepo.findByTableName(tableAnnotation.name());
+		// Generate insert query
+		SimpleDateFormat excelDateFormat = new SimpleDateFormat("MM/dd/yy");
+		List<EmployeeWeeklyWages> errorList = convertExcelToEmployeeWeeklyWagesList(file, importCsvResponse,
+				excelDateFormat);
+		if (!errorList.isEmpty()) {
+			try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+				employeeWeeklyWagesListByteConverion(errorList, outputStream, excelDateFormat, reportConfiguration);
+				importCsvResponse.setErrorCsvData(outputStream.toByteArray());
+				return importCsvResponse;
+			} catch (IOException e) {
+				log.error("[ExcelImportExportServiceImpl] uploadEmployeeWeeklyWages failed", e);
+				throw new RuntimeException("uploadEmployeeWeeklyWages failed", e);
+			}
+		}
+		return importCsvResponse;
+	}
+
+	private void employeeWeeklyWagesListByteConverion(List<EmployeeWeeklyWages> errorList,
+			ByteArrayOutputStream outputStream, SimpleDateFormat excelDateFormat,
+			ReportConfiguration reportConfiguration) {
+		try (XSSFWorkbook workbook = new XSSFWorkbook()) {
+			XSSFSheet sheet = workbook.createSheet(INVALID_LIST);
+			// Create header row
+			createHeaders(sheet, reportConfiguration);
+			// Populate data rows
+			int rowNum = 1;
+			for (EmployeeWeeklyWages employeeWeeklyWages : errorList) {
+				XSSFRow row = sheet.createRow(rowNum++);
+				writeEmployeeWeeklyWagesExistsData(employeeWeeklyWages, row, excelDateFormat);
+			}
+			workbook.write(outputStream);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void writeEmployeeWeeklyWagesExistsData(EmployeeWeeklyWages employeeWeeklyWages, XSSFRow row,
+			SimpleDateFormat excelDateFormat) {
+		row.createCell(0)
+				.setCellValue(Objects.nonNull(employeeWeeklyWages.getWorkStartDate())
+						? excelDateFormat.format(employeeWeeklyWages.getWorkStartDate())
+						: "");
+		row.createCell(1)
+				.setCellValue(Objects.nonNull(employeeWeeklyWages.getWorkEndDate())
+						? excelDateFormat.format(employeeWeeklyWages.getWorkEndDate())
+						: "");
+		row.createCell(2)
+				.setCellValue(Objects.nonNull(employeeWeeklyWages.getWeeklyWorkedHours())
+						? employeeWeeklyWages.getWeeklyWorkedHours()
+						: 0);
+		row.createCell(3).setCellValue(
+				Objects.nonNull(employeeWeeklyWages.getHourlyPay()) ? employeeWeeklyWages.getHourlyPay() : 0);
+		row.createCell(4).setCellValue(
+				Objects.nonNull(employeeWeeklyWages.getWeeklyTotalPay()) ? employeeWeeklyWages.getWeeklyTotalPay() : 0);
+		row.createCell(5).setCellValue(
+				StringUtils.isNotEmpty(employeeWeeklyWages.getUpdatedBy()) ? employeeWeeklyWages.getUpdatedBy() : "");
+		row.createCell(6).setCellValue(
+				Objects.nonNull(employeeWeeklyWages.getEmployee()) ? employeeWeeklyWages.getEmployee().getId() : 0);
+		row.createCell(7)
+				.setCellValue(StringUtils.isNotEmpty(employeeWeeklyWages.getErrorDescription())
+						? employeeWeeklyWages.getErrorDescription()
+						: "");
+	}
+
+	private List<EmployeeWeeklyWages> convertExcelToEmployeeWeeklyWagesList(MultipartFile file,
+			ImportCsvResponse importCsvResponse, SimpleDateFormat excelDateFormat) throws IOException {
+		List<EmployeeWeeklyWages> data = new ArrayList<>();
+		List<EmployeeWeeklyWages> errorList = new ArrayList<>();
+		Map<Long, Employee> employeeMap = employeeRepo.findAll().stream()
+				.collect(Collectors.toMap(Employee::getId, r -> r));
+		try (XSSFWorkbook workbook = new XSSFWorkbook(file.getInputStream())) {
+			int successCount = 0;
+			int failureCount = 0;
+			XSSFSheet sheet = workbook.getSheetAt(0); // Assuming the data is in the first sheet
+			for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+				XSSFRow row = sheet.getRow(rowIndex);
+				if (StringUtils.isNotEmpty(getStringCellValue(row, 0))) {
+					Date wsDate = null;
+					Date weDate = null;
+					String workStartDate = getStringCellValue(row, 0);
+					String workEndDate = getStringCellValue(row, 1);
+					String weeklyWorkedHours = getStringCellValue(row, 2);
+					String hourlyPay = getStringCellValue(row, 3);
+					String weeklyTotalPay = getStringCellValue(row, 4);
+					String updatedBy = getStringCellValue(row, 5);
+					Long employee = getLongCellValue(row, 6);
+					Employee employees = employeeMap.get(employee);
+
+					if (StringUtils.isNotEmpty(workStartDate)) {
+						try {
+							java.util.Date excelDate = excelDateFormat.parse(workStartDate);
+							wsDate = new java.sql.Date(excelDate.getTime());
+						} catch (ParseException e) {
+							EmployeeWeeklyWages employeeWeeklyWages = new EmployeeWeeklyWages();
+							employeeWeeklyWages.setWorkStartDate(wsDate);
+							employeeWeeklyWages.setWorkEndDate(weDate);
+							employeeWeeklyWages.setWeeklyWorkedHours(Integer.parseInt(weeklyWorkedHours));
+							employeeWeeklyWages.setHourlyPay(Integer.parseInt(hourlyPay));
+							employeeWeeklyWages.setWeeklyTotalPay(Integer.parseInt(weeklyTotalPay));
+							employeeWeeklyWages.setUpdatedBy(updatedBy);
+							employeeWeeklyWages.setEmployee(employees);
+							employeeWeeklyWages.setErrorDescription("Invalid Date format");
+							errorList.add(employeeWeeklyWages);
+							failureCount++;
+							continue;
+						}
+					}
+
+					if (StringUtils.isNotEmpty(workEndDate)) {
+						try {
+							java.util.Date excelDate = excelDateFormat.parse(workEndDate);
+							weDate = new java.sql.Date(excelDate.getTime());
+						} catch (ParseException e) {
+							EmployeeWeeklyWages employeeWeeklyWages = new EmployeeWeeklyWages();
+							employeeWeeklyWages.setWorkStartDate(wsDate);
+							employeeWeeklyWages.setWorkEndDate(weDate);
+							employeeWeeklyWages.setWeeklyWorkedHours(Integer.parseInt(weeklyWorkedHours));
+							employeeWeeklyWages.setHourlyPay(Integer.parseInt(hourlyPay));
+							employeeWeeklyWages.setWeeklyTotalPay(Integer.parseInt(weeklyTotalPay));
+							employeeWeeklyWages.setUpdatedBy(updatedBy);
+							employeeWeeklyWages.setEmployee(employees);
+							employeeWeeklyWages.setErrorDescription("Invalid Date format");
+							errorList.add(employeeWeeklyWages);
+							failureCount++;
+							continue;
+						}
+					}
+
+					// Create the EmployeeWeeklyWages object and add it to the list
+					if (!employeeMap.containsKey(employee)) {
+						EmployeeWeeklyWages employeeWeeklyWages = new EmployeeWeeklyWages();
+						employeeWeeklyWages.setWorkStartDate(wsDate);
+						employeeWeeklyWages.setWorkEndDate(weDate);
+						employeeWeeklyWages.setWeeklyWorkedHours(Integer.parseInt(weeklyWorkedHours));
+						employeeWeeklyWages.setHourlyPay(Integer.parseInt(hourlyPay));
+						employeeWeeklyWages.setWeeklyTotalPay(Integer.parseInt(weeklyTotalPay));
+						employeeWeeklyWages.setUpdatedBy(updatedBy);
+						employeeWeeklyWages.setEmployee(employees);
+						if (Objects.isNull(employee)) {
+							employeeWeeklyWages.setErrorDescription("Employee should not be empty");
+						} else {
+							employeeWeeklyWages.setErrorDescription(employee + " Employee not present");
+						}
+						errorList.add(employeeWeeklyWages);
+						failureCount++;
+						continue;
+					}
+
+					try {
+						EmployeeWeeklyWages employeeWeeklyWages = new EmployeeWeeklyWages(wsDate, weDate,
+								weeklyWorkedHours, hourlyPay, weeklyTotalPay, updatedBy, employees);
+						data.add(employeeWeeklyWages);
+					} catch (Exception e) {
+						EmployeeWeeklyWages employeeWeeklyWages = new EmployeeWeeklyWages();
+						employeeWeeklyWages.setWorkStartDate(wsDate);
+						employeeWeeklyWages.setWorkEndDate(weDate);
+						employeeWeeklyWages.setWeeklyWorkedHours(Integer.parseInt(weeklyWorkedHours));
+						employeeWeeklyWages.setHourlyPay(Integer.parseInt(hourlyPay));
+						employeeWeeklyWages.setWeeklyTotalPay(Integer.parseInt(weeklyTotalPay));
+						employeeWeeklyWages.setUpdatedBy(updatedBy);
+						employeeWeeklyWages.setEmployee(employees);
+						employeeWeeklyWages.setErrorDescription(e.getMessage());
+						errorList.add(employeeWeeklyWages);
+						failureCount++;
+					}
+				}
+			}
+			for (EmployeeWeeklyWages employeeWeeklyWages : data) {
+				employeeWeeklyWagesRepo.save(employeeWeeklyWages);
+				successCount++;
+			}
+			importCsvResponse.setFailureCount(failureCount);
+			importCsvResponse.setSuccessCount(successCount);
+		}
+		return errorList;
+	}
 }

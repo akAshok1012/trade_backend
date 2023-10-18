@@ -41,6 +41,7 @@ import com.tm.app.enums.ShipmentStatus;
 import com.tm.app.enums.TransactionType;
 import com.tm.app.repo.CreditPaymentTrackRepo;
 import com.tm.app.repo.CustomerRepo;
+import com.tm.app.repo.CustomerWalletRepo;
 import com.tm.app.repo.NotificationRepo;
 import com.tm.app.repo.PaymentHistoryRepository;
 import com.tm.app.repo.PaymentRepo;
@@ -91,6 +92,9 @@ public class ShipmentServiceImpl implements ShipmentService {
 
 	@Autowired
 	private CustomerWalletServiceImpl customerWalletService;
+
+	@Autowired
+	private CustomerWalletRepo customerWalletRepo;
 
 	private Float totalShippingAmount;
 
@@ -145,6 +149,9 @@ public class ShipmentServiceImpl implements ShipmentService {
 			shipmentDetails = shipmentRepo.findBySalesIdAndOrderItemIn(shipmentDto.getSalesId(), orderItemIdList);
 			ShipmentPaymentCreditPaymentWalletDto paymentWalletDto = paymentRepo
 					.getPaymentCreditPaymentWalletDetails(shipmentDto.getSalesId());
+			
+			//if a customer has no wallet
+			addWalletForCustomer(shipmentDto, paymentWalletDto);
 			List<ShipmentHistory> shipmentHistories = new ArrayList<>();
 			totalShippingAmount = 0F;
 			String trackingNumber = generateTrackingNumber();
@@ -170,6 +177,17 @@ public class ShipmentServiceImpl implements ShipmentService {
 			throw new RuntimeException(e.getMessage());
 		}
 		return shipmentDetails;
+	}
+
+	private void addWalletForCustomer(ShipmentDto shipmentDto, ShipmentPaymentCreditPaymentWalletDto paymentWalletDto) {
+		if (Objects.isNull(paymentWalletDto.getCustomerWallet())) {
+			CustomerWallet customerWallet = new CustomerWallet();
+			customerWallet.setBalance(0F);
+			customerWallet.setCustomer(paymentWalletDto.getPayment().getCustomer());
+			customerWallet.setUpdatedBy(shipmentDto.getUpdatedBy());
+			customerWallet = customerWalletRepo.save(customerWallet);
+			paymentWalletDto.setCustomerWallet(customerWallet);
+		}
 	}
 
 	/**

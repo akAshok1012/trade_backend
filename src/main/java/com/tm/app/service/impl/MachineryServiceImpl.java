@@ -16,6 +16,7 @@ import com.tm.app.entity.Machinery;
 import com.tm.app.repo.MachineryRepo;
 import com.tm.app.service.MachineryService;
 
+import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
@@ -36,11 +37,15 @@ public class MachineryServiceImpl implements MachineryService {
 			throws JsonProcessingException {
 		Machinery machinery = new Machinery();
 		try {
+			if (StringUtils.isNotEmpty(machineryDto.getSerialNumber())
+					&& machineryRepo.existsBySerialNumberIgnoreCase(machineryDto.getSerialNumber())) {
+				throw new RuntimeException("Serial Number  already exists");
+			}
 			BeanUtils.copyProperties(machineryDto, machinery);
 			machinery = machineryRepo.save(machinery);
 		} catch (Exception e) {
 			log.error("[MACHINERY] adding machinery failed", e);
-			throw new RuntimeException("Adding machinery failed");
+			throw new RuntimeException(e.getMessage());
 		}
 		return machinery;
 	}
@@ -64,19 +69,24 @@ public class MachineryServiceImpl implements MachineryService {
 		log.info("Updated Machinery");
 		Machinery machinery = machineryRepo.findById(id).orElseThrow();
 		try {
+			if (StringUtils.isNotEmpty(machineryDto.getSerialNumber())
+					&& machineryRepo.existsBySerialNumberIgnoreCase(machineryDto.getSerialNumber())
+					&& !machinery.getSerialNumber().equals(machineryDto.getSerialNumber())) {
+				throw new RuntimeException("Serial Number  already exists");
+			}
 			String authorizationHeaderValue = request.getHeader("Authorization");
 
 			if (authorizationHeaderValue != null && authorizationHeaderValue.startsWith("Bearer")) {
 				authorizationHeaderValue = authorizationHeaderValue.substring(7, authorizationHeaderValue.length());
 			}
 
-			String userName = jwtService.extractUsername(authorizationHeaderValue);
+			String userName = jwtService.extractJwtObject(authorizationHeaderValue).getUserName();
 
 			BeanUtils.copyProperties(machineryDto, machinery);
 			machinery = machineryRepo.save(machinery);
 		} catch (Exception e) {
 			log.error("[MACHINERY] updating machinery failed", e);
-			throw new RuntimeException("Updating machinery failed");
+			throw new RuntimeException(e.getMessage());
 		}
 		return machinery;
 	}

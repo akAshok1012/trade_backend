@@ -16,11 +16,14 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "t_employee_pay_hours")
+@Table(name = "t_employee_pay_hours",uniqueConstraints={
+	    @UniqueConstraint(columnNames = {"work_date", "employee_id"})
+	}) 
 public class EmployeePayHours {
 
 	@Id
