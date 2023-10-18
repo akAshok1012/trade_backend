@@ -1,9 +1,6 @@
-springboot:
-  enabled: false
-  postgresql:
-    host: {{ include "postgres-chart.fullname" . }} # Link to the PostgreSQL service
-    port: 5432
-    database: trade
-    username: postgres
-    password: root
+postgres:
+  enabled: true
+  postgresqlUsername: postgres
+  postgresqlPassword: root
+  postgresqlDatabase: trade
 
