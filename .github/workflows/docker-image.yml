@@ -1,7 +1,7 @@
 name: Docker Image CI
 on:
   push:
-    branches: [ "uat" ]
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
@@ -52,7 +52,7 @@ jobs:
       - name: Check if Helm release exists & Install or Upgrade Helm Chart
         id: check_release
         run: |
-           RELEASE_NAME=kprdata
+           RELEASE_NAME=xy-backend
            if helm get $RELEASE_NAME > /dev/null 2>&1; then
                echo "Helm release $RELEASE_NAME already exists."
                 helm upgrade $RELEASE_NAME kprbackend -f values.yaml 
