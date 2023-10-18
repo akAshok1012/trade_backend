@@ -44,13 +44,8 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  #type: LoadBalancer
-  #port: 9200
-  ports:
-    - protocol: TCP
-      port: 9044
-      targetPort: 9044
   port: 9044
+  targetPort: 9044
     
 
 ingress:
