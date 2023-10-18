@@ -43,16 +43,14 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  #type: ClusterIP
-  type: LoadBalancer
+  type: ClusterIP
+  #type: LoadBalancer
   #port: 9200
-   ports:
+  ports:
     - protocol: TCP
-      port: 80
-      targetPort: 8080
-  externalIPs:
-    - 106.51.152.163
-  port: 9449
+      port: 9044
+      targetPort: 9044
+  port: 9044
     
 
 ingress:
