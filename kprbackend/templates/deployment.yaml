@@ -44,7 +44,7 @@ spec:
         
           ports:
             - name: http
-              containerPort: 9044
+              containerPort: 6044
               protocol: TCP
       #    livenessProbe:
       #     httpGet:
