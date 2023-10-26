@@ -18,4 +18,4 @@ COPY --from=build /app/target/trademanager-0.0.1-SNAPSHOT.jar /app/trademanager-
 
 EXPOSE 6044
 # Set the entry point for the container
-ENTRYPOINT ["java", "-jar", "/app/trademanager-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "/app/trademanager-0.0.1-SNAPSHOT.jar"]
