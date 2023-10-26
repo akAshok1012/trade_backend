@@ -43,9 +43,10 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
+  type: NodePort
   port: 6044
   targetPort: 6044
+  nodeport: 30004
     
 
 ingress:
