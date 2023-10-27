@@ -8,7 +8,7 @@ image:
   repository: xyloincadmin/trademanager
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "62"
+  tag: "63"
 kprbackend:   
   database:
     host: postgres-service
@@ -48,7 +48,7 @@ service:
   targetPort: 6044
   nodePort: 30004
   externalIPs:
-    - "106.51.152.163"
+    - "192.168.0.129"
 
 ingress:
   enabled: false
