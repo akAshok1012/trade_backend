@@ -31,8 +31,16 @@ jobs:
             docker build -t $IMAGE_NAME:$TAG . --no-cache
             docker push $IMAGE_NAME:$TAG
             
-      - name: Export Metrics
-        uses: actions/prometheus-exporter@v0.2.0      
+      
+      - name: Check Prometheus configs
+        uses: peimanja/promtool-github-actions@master
+        with:
+          promtool_actions_subcommand: 'config'
+          promtool_actions_files: '.github/workflows/*.yml'
+          promtool_actions_version: '2.14.0'
+          promtool_actions_comment: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}   
 
             
           
